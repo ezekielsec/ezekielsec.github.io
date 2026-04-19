@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ezekiel | Offensive Security & Penetration Testing</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0C12;
+            color: #EFF3FC;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        /* custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141824;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A7DE1;
+            border-radius: 10px;
+        }
+
+        /* container utility */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* glassmorphic nav */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 12, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(42, 125, 225, 0.2);
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #FFFFFF 0%, #2A7DE1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span {
+            color: #2A7DE1;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: #EFF3FC;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .nav-links a:hover {
+            color: #2A7DE1;
+        }
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* buttons */
+        .btn-primary {
+            background: linear-gradient(95deg, #2A7DE1 0%, #1C4F8F 100%);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(42,125,225,0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(42,125,225,0.3);
+            background: linear-gradient(95deg, #3A8DF1 0%, #2A6ECF 100%);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #2A7DE1;
+            padding: 0.75rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: white;
+            transition: 0.2s;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .btn-outline:hover {
+            background: rgba(42,125,225,0.1);
+            border-color: #5A9EFF;
+        }
+
+        /* sections */
+        section {
+            padding: 100px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        .section-sub {
+            color: #8E9AAF;
+            max-width: 700px;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, #FFFFFF, #2A7DE1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(42,125,225,0.08) 0%, #0A0C12 90%);
+            z-index: -1;
+        }
+        .hero-content {
+            max-width: 700px;
+        }
+        .hero-badge {
+            background: rgba(42,125,225,0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #2A7DE1;
+        }
+        .hero h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.2rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: #B8C5E0;
+            margin-bottom: 2rem;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .stat span {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #2A7DE1;
+        }
+
+        /* services grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .service-card {
+            background: #11131C;
+            border-radius: 28px;
+            padding: 1.8rem;
+            transition: 0.25s ease;
+            border: 1px solid #202433;
+            backdrop-filter: blur(4px);
+        }
+        .service-card:hover {
+            transform: translateY(-6px);
+            border-color: #2A7DE1;
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5);
+        }
+        .price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2A7DE1;
+            margin: 1rem 0 0.5rem;
+        }
+        .duration {
+            font-size: 0.9rem;
+            color: #8E9AAF;
+            margin-bottom: 1rem;
+        }
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        .feature-list li {
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        .feature-list i {
+            color: #2A7DE1;
+            font-size: 0.8rem;
+        }
+
+        /* about skills */
+        .skillset {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0 1rem;
+        }
+        .skill-tag {
+            background: #1A1E2C;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            border-left: 2px solid #2A7DE1;
+        }
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #0A0C12;
+            padding: 0.7rem 1.4rem;
+            border-radius: 40px;
+            border: 1px solid #2A7DE1;
+            margin-top: 1rem;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .github-link:hover {
+            background: #1A1E2C;
+        }
+
+        /* trusted clients */
+        .clients-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        .client-card {
+            background: #11131C;
+            padding: 1.5rem 2.5rem;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            backdrop-filter: blur(4px);
+            border: 1px solid #202433;
+            transition: 0.2s;
+        }
+        .client-card:hover {
+            border-color: #2A7DE1;
+            transform: scale(1.02);
+        }
+
+        /* cta */
+        .cta-section {
+            background: linear-gradient(120deg, #0E1220, #05070C);
+            text-align: center;
+            border-radius: 48px;
+            margin: 40px auto;
+            padding: 3rem;
+        }
+
+        /* Explore Section Cards Grid */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .explore-card {
+            background: #11131C;
+            border-radius: 28px;
+            padding: 2rem 1.8rem;
+            transition: all 0.3s ease;
+            border: 1px solid #202433;
+            cursor: pointer;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+        .explore-card:hover {
+            transform: translateY(-8px);
+            border-color: #2A7DE1;
+            box-shadow: 0 25px 35px -15px rgba(42,125,225,0.25);
+            background: #141824;
+        }
+        .explore-icon {
+            font-size: 2.8rem;
+            color: #2A7DE1;
+            margin-bottom: 1.2rem;
+        }
+        .explore-card h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.3px;
+        }
+        .explore-card p {
+            color: #8E9AAF;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+        .explore-badge {
+            display: inline-block;
+            background: rgba(42,125,225,0.15);
+            padding: 0.25rem 1rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #2A7DE1;
+            border: 0.5px solid rgba(42,125,225,0.3);
+        }
+        /* footer */
+        footer {
+            background: #06080F;
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid #1A1E2C;
+            color: #6C7A96;
+        }
+
+        /* responsive */
+        @media (max-width: 860px) {
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                background: #0A0C12f0;
+                backdrop-filter: blur(12px);
+                padding: 1rem;
+                border-radius: 20px;
+                margin-top: 1rem;
+                text-align: center;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+            .clients-grid {
+                justify-content: center;
+            }
+            .explore-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 560px) {
+            .hero-stats {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            .service-card {
+                padding: 1.2rem;
+            }
+            .explore-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">EZEKIEL<span>//</span>SEC</div>
+            <div class="menu-toggle" id="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#explore">Explore</a></li>
+                <li><a href="#clients">Clients</a></li>
+                <li><a href="#contact" class="btn-outline" style="padding:0.4rem 1.2rem;">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HOME Section -->
+        <section id="home" class="hero">
+            <div class="hero-bg"></div>
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge"><i class="fas fa-shield-alt"></i>  elite offensive security</div>
+                    <h1>Beyond the perimeter.<br> <span class="gradient-text">Before the breach.</span></h1>
+                    <p>Ezekiel is a specialized offensive security company with proven experience testing across <strong>government</strong> and <strong>financial institutions</strong> worldwide. We deliver professional penetration testing and private bug bounty programs (BBP) to organizations that demand silent, precise, and results-driven security validation.</p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="#services" class="btn-primary">Explore Services →</a>
+                        <a href="#contact" class="btn-outline">Request a private BBP</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat"><span>4+</span><br>Countries served</div>
+                        <div class="stat"><span>100+</span><br>Gov & financial audits</div>
+                        <div class="stat"><span>0-day</span><br>Research driven</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICES Section with Tiers -->
+        <section id="services">
+            <div class="container">
+                <h2 class="section-title">Penetration Testing <span class="gradient-text">— Fixed Pricing</span></h2>
+                <p class="section-sub">All tests performed manually by Ezekiel operators. Deliverables include detailed report with PoC, risk ratings, and remediation steps. Private BBP also available.</p>
+                <div class="services-grid">
+                    <!-- Tier 1 -->
+                    <div class="service-card">
+                        <h3>Tier 1 – Basic Assessment</h3>
+                        <div class="price">$500</div>
+                        <div class="duration"><i class="far fa-clock"></i> 2 days engagement</div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Basic recon & footprinting</li>
+                            <li><i class="fas fa-check-circle"></i> Network analysis (limited scope)</li>
+                            <li><i class="fas fa-check-circle"></i> Common vulnerability analysis (OWASP, known CVEs)</li>
+                        </ul>
+                    </div>
+                    <!-- Tier 2 -->
+                    <div class="service-card">
+                        <h3>Tier 2 – Standard Assessment</h3>
+                        <div class="price">$1,500</div>
+                        <div class="duration"><i class="far fa-clock"></i> 6 days engagement</div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Advanced recon (OSINT, subdomain enumeration)</li>
+                            <li><i class="fas fa-check-circle"></i> All device + subdomain network analysis</li>
+                            <li><i class="fas fa-check-circle"></i> Full device + subdomain common vulnerability analysis</li>
+                        </ul>
+                    </div>
+                    <!-- Tier 3 -->
+                    <div class="service-card">
+                        <h3>Tier 3 – Deep Assessment</h3>
+                        <div class="price">$3,000</div>
+                        <div class="duration"><i class="far fa-clock"></i> 12 days engagement</div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Advanced recon + all subdomain analysis</li>
+                            <li><i class="fas fa-check-circle"></i> Infrastructure vulnerability analysis</li>
+                            <li><i class="fas fa-check-circle"></i> Advanced JavaScript review & serialization checks</li>
+                            <li><i class="fas fa-check-circle"></i> Advanced tech stack fingerprinting</li>
+                        </ul>
+                    </div>
+                    <!-- Tier 4 -->
+                    <div class="service-card">
+                        <h3>Tier 4 – Full Red Team</h3>
+                        <div class="price">$6,000</div>
+                        <div class="duration"><i class="far fa-clock"></i> 24 days full red team op</div>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check-circle"></i> Full red team operation on target infrastructure</li>
+                            <li><i class="fas fa-check-circle"></i> Device / API / Network full pentesting</li>
+                            <li><i class="fas fa-check-circle"></i> All domain+subdomain CVE & vulnerability analysis</li>
+                            <li><i class="fas fa-check-circle"></i> Advanced plugin / framework analysis</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; text-align: center;">
+                    <p style="color:#8E9AAF;">*Tailored scoping for private bug bounty programs — <a href="#contact" style="color:#2A7DE1;">contact our team</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT US Section -->
+        <section id="about">
+            <div class="container">
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <h2 class="section-title">About <span class="gradient-text">Ezekiel</span> – The Offensive Vanguard</h2>
+                    <p style="font-size: 1.1rem; max-width: 850px;">Ezekiel is an experienced penetration testing team that has successfully tested security postures across <strong>governments and financial institutions across the world</strong>. We do not believe in surface‑level scanning — we break things methodically, ethically, and silently.</p>
+                    <p style="max-width: 850px;">We specialize in finding vulnerabilities from three critical layers: <strong>Web tech stack</strong>, <strong>Network layer</strong>, and <strong>Web application layer</strong> (logic flaws, access controls, input handling).</p>
+                    
+                    <h3 style="margin-top: 1rem;">Core skillset — what makes us different</h3>
+                    <div class="skillset">
+                        <span class="skill-tag">Authentication bypass</span>
+                        <span class="skill-tag">CSRF / SSRF</span>
+                        <span class="skill-tag">RCE (Remote Code Execution)</span>
+                        <span class="skill-tag">IDOR / Mass assignment</span>
+                        <span class="skill-tag">Deserialization attacks</span>
+                        <span class="skill-tag">API abuse & race conditions</span>
+                    </div>
+                    <p>For more technical research, proof‑of‑concepts, and deepseek integration references:</p>
+                    <a href="https://github.com/mishal-zero" target="_blank" class="github-link">
+                        <i class="fab fa-github"></i> github.com/mishal-zero — owner's repository
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== EXPLORE SECTION (New) ========== -->
+        <section id="explore">
+            <div class="container">
+                <h2 class="section-title">Explore <span class="gradient-text">Ezekiel Labs</span></h2>
+                <p class="section-sub">Dive deep into our specialized programs, private initiatives, and official resources. Each group leads to a dedicated microsite or asset — access internal briefings and technical documentation.</p>
+                <div class="explore-grid">
+                    <!-- 1. Primary Works -> 1.html -->
+                    <div class="explore-card" data-link="access.html">
+                        <div class="explore-icon"><i class="fas fa-bullhorn"></i></div>
+                        <h3>Primary Works</h3>
+                        <p>Flagship offensive research, published advisories, and core penetration testing methodologies.</p>
+                        <span class="explore-badge"><i class="fas fa-arrow-right"></i> explore</span>
+                    </div>
+                    <!-- 2. Private BBP -> 2.html -->
+                    <div class="explore-card" data-link="private.html">
+                        <div class="explore-icon"><i class="fas fa-lock"></i></div>
+                        <h3>Private BBP</h3>
+                        <p>Confidential bug bounty programs tailored for enterprises. Access scope, rules & rewards.</p>
+                        <span class="explore-badge"><i class="fas fa-arrow-right"></i> explore</span>
+                    </div>
+                    <!-- 3. Awards -> 3.html -->
+                    <div class="explore-card" data-link="access.html">
+                        <div class="explore-icon"><i class="fas fa-trophy"></i></div>
+                        <h3>Awards</h3>
+                        <p>Industry recognition, CVE acknowledgements, and hall of fame entries from global programs.</p>
+                        <span class="explore-badge"><i class="fas fa-arrow-right"></i> explore</span>
+                    </div>
+                    <!-- 4. Policy -> 4.html -->
+                    <div class="explore-card" data-link="policy.html">
+                        <div class="explore-icon"><i class="fas fa-file-contract"></i></div>
+                        <h3>Policy</h3>
+                        <p>Disclosure policies, responsible handling, legal framework and compliance guidelines.</p>
+                        <span class="explore-badge"><i class="fas fa-arrow-right"></i> explore</span>
+                    </div>
+                    <!-- 5. Payment Processing -> 5.html -->
+                    <div class="explore-card" data-link="access.html">
+                        <div class="explore-icon"><i class="fas fa-credit-card"></i></div>
+                        <h3>Payment Processing</h3>
+                        <p>Secure billing, crypto invoices, and engagement payment infrastructure details.</p>
+                        <span class="explore-badge"><i class="fas fa-arrow-right"></i> explore</span>
+                    </div>
+                    <!-- 6. Research -> 6.html -->
+                    <div class="explore-card" data-link="research-dir.html">
+                        <div class="explore-icon"><i class="fas fa-flask"></i></div>
+                        <h3>Research</h3>
+                        <p>0-day discoveries, exploit development, and deep technical dives into modern threats.</p>
+                        <span class="explore-badge"><i class="fas fa-arrow-right"></i> explore</span>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; text-align: center; font-size: 0.85rem; color: #6C7A96;">
+                    <i class="fas fa-external-link-alt"></i> Click any card to navigate to the respective resource page
+                </div>
+            </div>
+        </section>
+
+        <!-- TRUSTED CLIENTS Section -->
+        <section id="clients">
+            <div class="container">
+                <h2 class="section-title">Trusted by <span class="gradient-text">Industry Leaders</span></h2>
+                <p class="section-sub">The following organizations have engaged Ezekiel for penetration testing, red team operations, or private bug bounty programs. Client names are shared with explicit permission.</p>
+                <div class="clients-grid">
+                    <div class="client-card"><i class="fas fa-crown"></i> lotusbook.site</div>
+                    <div class="client-card"><i class="fas fa-chart-line"></i> deltafx.pro</div>
+                    <div class="client-card"><i class="fas fa-bullseye"></i> targetfx.pro</div>
+                </div>
+                <p style="margin-top: 2rem; font-size: 0.85rem; color: #6C7A96;">*Government and financial sector clients remain confidential by default. References available under NDA.</p>
+            </div>
+        </section>
+
+        <!-- CONTACT / CTA Section -->
+        <section id="contact">
+            <div class="container">
+                <div class="cta-section">
+                    <h2 style="font-size: 2rem;">Ready to harden your perimeter?</h2>
+                    <p style="margin: 1rem auto; max-width: 600px;">Talk to our red team specialists. Whether it's a one‑time pentest or a full private bug bounty program, we operate with military precision.</p>
+                    <a href="https://t.me/Cathedralheather" class="btn-primary" style="background: white; color:#0A0C12; box-shadow:none;">Schedule a confidential call →</a>
+                    <p style="margin-top: 1.5rem; font-size: 0.8rem;">📧 contact@ezekielsec.com  |  🔒 PGP encrypted available</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 Ezekiel — Offensive Security. Government-grade penetration testing & private BBP.</p>
+            <p style="margin-top: 0.5rem;"><i class="fas fa-terminal"></i> Silent. Precise. Relentless.</p>
+        </div>
+    </footer>
+
+    <!-- mobile menu + smooth scroll + explore navigation -->
+    <script>
+        // Mobile menu toggle
+        const mobileBtn = document.getElementById('mobile-menu');
+        const navLinks = document.getElementById('nav-links');
+        if (mobileBtn) {
+            mobileBtn.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === "#" || targetId === "") return;
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    if (navLinks.classList.contains('active')) navLinks.classList.remove('active');
+                }
+            });
+        });
+        
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(10, 12, 18, 0.95)';
+                navbar.style.backdropFilter = 'blur(16px)';
+            } else {
+                navbar.style.background = 'rgba(10, 12, 18, 0.85)';
+            }
+        });
+        
+        // EXPLORE CARDS: navigate to corresponding .html files when clicked
+        // Matching exactly: primary works -> 1.html, private BBP -> 2.html, awards -> 3.html,
+        // policy -> 4.html, payment processing -> 5.html, research -> 6.html
+        const exploreCards = document.querySelectorAll('.explore-card');
+        exploreCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                // prevent accidental bubbling if inner elements have separate handlers
+                e.stopPropagation();
+                const targetFile = card.getAttribute('data-link');
+                if (targetFile) {
+                    // Navigate to the specific HTML file in the same directory
+                    window.location.href = targetFile;
+                } else {
+                    console.warn("No data-link attribute found for this explore card");
+                }
+            });
+            // Add subtle cursor pointer and role for accessibility
+            card.style.cursor = 'pointer';
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            // Keyboard accessibility: Enter or Space triggers navigation
+            card.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const targetFile = card.getAttribute('data-link');
+                    if (targetFile) window.location.href = targetFile;
+                }
+            });
+        });
+        
+        // Additional guard: if any .explore-card is missing data-link, but all six have been assigned.
+        // Ensure the mapping is exact: 
+        // The HTML structure matches exactly the requested groups:
+        // Primary Works -> 1.html, Private BBP -> 2.html, Awards -> 3.html, Policy -> 4.html,
+        // Payment Processing -> 5.html, Research -> 6.html.
+        console.log("Explore section ready — groups mapped to 1.html .. 6.html");
+    </script>
+</body>
+</html>

@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ezekiel//sec | Policy & Rules of Engagement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        :root {
+            --bg: #080A10;
+            --surface: #0D0F18;
+            --surface2: #12151F;
+            --border: rgba(42,125,225,0.18);
+            --border2: rgba(42,125,225,0.08);
+            --accent: #2A7DE1;
+            --accent2: #4F9EFF;
+            --accent-dim: rgba(42,125,225,0.12);
+            --text: #E8EEF8;
+            --text-muted: #8894AC;
+            --text-dim: #5A6580;
+            --mono: 'Space Mono', monospace;
+            --sans: 'Syne', sans-serif;
+            --red: #E05555;
+            --green: #3DCC8F;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(42,125,225,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42,125,225,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glow blob */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(42,125,225,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background: rgba(8,10,16,0.82);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .logo .slash { color: var(--accent); }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            letter-spacing: 0.04em;
+        }
+
+        .back-btn:hover {
+            color: var(--text);
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .back-btn svg { width: 14px; height: 14px; }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            padding: 120px 32px 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-tag {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--accent);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-tag::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .page-title {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .page-title .highlight { color: var(--accent2); }
+
+        .page-subtitle {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px 80px;
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ===== POLICY DOCUMENT ===== */
+        .policy-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .policy-card-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface2);
+        }
+
+        .policy-card-header-left { display: flex; align-items: center; gap: 12px; }
+
+        .doc-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--accent-dim);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .doc-title { font-size: 0.95rem; font-weight: 700; }
+        .doc-subtitle { font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+
+        .doc-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--green);
+            border: 1px solid rgba(61,204,143,0.25);
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(61,204,143,0.06);
+        }
+
+        .doc-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Policy scrollable body */
+        .policy-body-scroll {
+            max-height: 680px;
+            overflow-y: auto;
+            padding: 28px;
+        }
+
+        .policy-body-scroll::-webkit-scrollbar { width: 4px; }
+        .policy-body-scroll::-webkit-scrollbar-track { background: transparent; }
+        .policy-body-scroll::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+        /* Policy content typography */
+        .policy-content { font-family: var(--mono); font-size: 0.72rem; line-height: 1.7; color: #C4D0E8; }
+
+        .policy-content .watermark-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.65rem;
+            color: var(--accent);
+            border: 1px solid rgba(42,125,225,0.2);
+            background: var(--accent-dim);
+            border-radius: 6px;
+            padding: 8px 14px;
+            margin-bottom: 24px;
+        }
+
+        .policy-content .watermark-bar svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+        .policy-content .section-title {
+            font-family: var(--sans);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--accent2);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .policy-content .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 2px;
+            background: var(--accent2);
+        }
+
+        .policy-content .sub-title {
+            font-family: var(--sans);
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 14px;
+            margin-bottom: 6px;
+        }
+
+        .policy-content p { margin-bottom: 8px; }
+
+        .policy-content ul {
+            list-style: none;
+            margin: 8px 0;
+        }
+
+        .policy-content ul li {
+            padding-left: 16px;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .policy-content ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-size: 0.65rem;
+            top: 1px;
+        }
+
+        .policy-content hr {
+            border: none;
+            border-top: 1px solid var(--border2);
+            margin: 20px 0;
+        }
+
+        .policy-content .sign-block {
+            margin-top: 28px;
+            padding: 18px;
+            border: 1px dashed rgba(42,125,225,0.35);
+            border-radius: 10px;
+            background: var(--accent-dim);
+        }
+
+        .policy-content .sign-block .name {
+            font-family: var(--sans);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent2);
+            margin: 6px 0 2px;
+        }
+
+        .policy-content .sign-block .timestamp {
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            margin-top: 6px;
+        }
+
+        .placeholder-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 24px;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .placeholder-state .icon-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .placeholder-state h3 {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .placeholder-state p {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            max-width: 300px;
+            line-height: 1.6;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 88px; }
+
+        .sidebar-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .sidebar-card-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: var(--surface2);
+        }
+
+        .sidebar-card-body { padding: 20px; }
+
+        /* Identity select */
+        .form-group { margin-bottom: 14px; }
+        .form-label {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+            display: block;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            outline: none;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .form-input::placeholder { color: var(--text-dim); }
+        .form-input:focus, .form-select:focus { border-color: var(--accent); }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238894AC' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .form-select option { background: #12151F; }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-family: var(--sans);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .btn-primary-act {
+            background: linear-gradient(135deg, var(--accent) 0%, #1A5BA8 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(42,125,225,0.25);
+        }
+
+        .btn-primary-act:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(42,125,225,0.35); }
+
+        .btn-dl {
+            background: transparent;
+            border: 1px solid rgba(42,125,225,0.4);
+            color: var(--accent2);
+            margin-top: 10px;
+        }
+
+        .btn-dl:hover { background: var(--accent-dim); border-color: var(--accent); }
+        .btn-dl:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+        .btn-dl:disabled:hover { background: transparent; border-color: rgba(42,125,225,0.4); }
+
+        /* Info rows */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border2);
+            font-family: var(--mono);
+            font-size: 0.68rem;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+        .info-row .label { color: var(--text-dim); }
+        .info-row .val { color: var(--text); font-weight: 700; }
+        .info-row .val.ok { color: var(--green); }
+        .info-row .val.pending { color: #E09055; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(12px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+
+        .modal-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            max-width: 460px;
+            width: 90%;
+            padding: 32px;
+            box-shadow: 0 40px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(42,125,225,0.08);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+
+        .modal-eyebrow {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--accent);
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .modal-sub {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+        .modal-cancel {
+            flex: 1;
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: var(--sans);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-cancel:hover { border-color: var(--text-muted); color: var(--text); }
+
+        .modal-confirm {
+            flex: 2;
+            padding: 11px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), #1A5BA8);
+            color: white;
+            font-family: var(--sans);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-confirm:hover { box-shadow: 0 6px 20px rgba(42,125,225,0.3); transform: translateY(-1px); }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid var(--border2);
+            padding: 24px 32px;
+            text-align: center;
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .main { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+            .page-header { padding: 100px 20px 32px; }
+            .main { padding: 0 20px 60px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-inner">
+        <div class="logo">Ezekiel<span class="slash">//</span>sec</div>
+        <a href="index.html" class="back-btn">
+            <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.5 2L3.5 7L8.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to Main
+        </a>
+    </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-tag">Legal & Compliance</div>
+    <h1 class="page-title">Rules of <span class="highlight">Engagement</span></h1>
+    <p class="page-subtitle">// Operational Policy Manual — Binding Legal Framework</p>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+    <!-- POLICY DOCUMENT CARD -->
+    <div class="policy-card">
+        <div class="policy-card-header">
+            <div class="policy-card-header-left">
+                <div class="doc-icon">📋</div>
+                <div>
+                    <div class="doc-title">Operational Policy Manual</div>
+                    <div class="doc-subtitle">// EZEKIEL//SEC — COMMITMENT TO RIGOR, CONFIDENTIALITY & LEGAL SAFETY</div>
+                </div>
+            </div>
+            <div class="doc-status">
+                <div class="dot"></div>
+                ACTIVE POLICY
+            </div>
+        </div>
+        <div class="policy-body-scroll">
+            <div id="policyContent">
+                <div class="policy-content" id="defaultPolicy">
+                    <!-- Default policy always visible -->
+                    <div class="watermark-bar">
+                        <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 1L7.5 4.5L11 5L8.5 7.5L9 11L6 9.5L3 11L3.5 7.5L1 5L4.5 4.5L6 1Z" fill="currentColor"/></svg>
+                        EZEKIEL//SEC — UNCLASSIFIED POLICY DOCUMENT — REV. 2026.1
+                    </div>
+
+                    <div class="section-title">1. Purpose and Scope</div>
+                    <p>This policy establishes binding rules for all penetration testing engagements and Bug Bounty Program (BBP) maintenance conducted by Ezekiel//sec. It applies to internal employees, subcontractors, and external security researchers. Adherence guarantees client safety and legal compliance.</p>
+
+                    <hr>
+
+                    <div class="section-title">2. The "Safety Assurance" Client Pledge</div>
+                    <div class="sub-title">No Operational Impact Guarantee</div>
+                    <p>Testing prioritizes safety; no fuzzing on production auth modules without explicit authorization.</p>
+                    <div class="sub-title">Data Privacy & Integrity</div>
+                    <p>Exfiltration prohibited; proof via metadata only.</p>
+                    <div class="sub-title">Confidentiality (Zero Spill)</div>
+                    <p>Findings treated as client IP. Strict Clean Desk policy enforced.</p>
+                    <div class="sub-title">Legal Safe Harbor</div>
+                    <p>Binding Safe Harbor Letter provided to all researchers upon engagement initiation.</p>
+
+                    <hr>
+
+                    <div class="section-title">Part A — Client Rules of Engagement (RoE)</div>
+                    <div class="sub-title">Authorization & Scope</div>
+                    <p>Signed authorization required before any engagement begins. Scope Boundary Table defines in-scope assets with precision. Third-party authorization remains the client's responsibility.</p>
+                    <div class="sub-title">Critical Findings Protocol</div>
+                    <p>Testing halts immediately upon discovery of critical/zero-day vulnerabilities. Client notified within 1 hour. Coordinated Vulnerability Disclosure (CVD) 90-day timeline enforced before any public release.</p>
+                    <div class="sub-title">Testing Rules (Do's and Don'ts)</div>
+                    <ul>
+                        <li><strong>Social Engineering:</strong> Restricted — requires explicit written sign-off.</li>
+                        <li><strong>Physical Intrusion:</strong> Restricted — legal waiver required.</li>
+                        <li><strong>DoS / Fuzzing:</strong> Prohibited unless destructive testing waiver is signed.</li>
+                        <li><strong>Privilege Escalation:</strong> Allowed for PoC only — no persistent backdoors.</li>
+                        <li><strong>Data Exfiltration:</strong> Strictly prohibited — directory listing/metadata only.</li>
+                    </ul>
+
+                    <hr>
+
+                    <div class="section-title">Part B — Bug Bounty Program (BBP) Management</div>
+                    <div class="sub-title">ISO 29147 Standard</div>
+                    <p>Report submission via encrypted channel → triage within 24h → client notification. Researcher embargo enforced until patch is ready and deployed.</p>
+                    <div class="sub-title">Safe Harbor Promise</div>
+                    <p>No legal action against researchers who stop at data exposure, avoid service interruption, and respect embargo timelines.</p>
+                    <div class="sub-title">Duplicate & Re-test Rules</div>
+                    <p>First report timestamp determines bounty eligibility. Re-test conducted only after patch deployment is confirmed.</p>
+
+                    <hr>
+
+                    <div class="section-title">Part C — Internal Code of Conduct</div>
+                    <div class="sub-title">Do No Harm</div>
+                    <p>No trolling or harassment of client staff. If illegal content is encountered, all testing stops immediately — report to CISO within the hour.</p>
+                    <div class="sub-title">Confidentiality & Data Handling</div>
+                    <p>PGP encryption mandatory for all reports. Clean Desk: client data wiped after engagement per DoD 5220.22-M standard.</p>
+                    <div class="sub-title">Compliance with Law (CERT-In, GDPR/CCPA)</div>
+                    <p>Critical infrastructure findings reported as per regulatory mandate. No EU/CA user data processed without a valid DPA in place.</p>
+
+                    <hr>
+
+                    <div class="section-title">4. Breach of Policy & Remedies</div>
+                    <div class="sub-title">For Clients</div>
+                    <p>If Ezekiel//sec violates RoE, client may terminate engagement immediately with full refund.</p>
+                    <div class="sub-title">For Researchers / Hackers</div>
+                    <p>Minor violation: warning issued and/or report rejection. Severe violation (unauthorized data access): permanent ban, forfeited bounties, and law enforcement notification.</p>
+                    <div class="sub-title">Internal Staff</div>
+                    <p>Immediate termination and full legal liability without exception.</p>
+
+                    <hr>
+
+                    <div class="section-title">5. Sign-off & Acceptance</div>
+                    <p>By initiating a penetration test or joining the Ezekiel//sec Bug Bounty Program, the undersigned acknowledges and accepts full agreement to these Rules of Engagement, including all clauses regarding safe harbor, responsible disclosure, and operational conduct.</p>
+
+                    <div id="signBlock" style="display:none;" class="sign-block">
+                        <div style="font-size:0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing:0.1em;">Digitally Accepted By</div>
+                        <div class="name" id="signName">—</div>
+                        <div style="font-size:0.68rem; color: var(--text-muted);" id="signEmail">—</div>
+                        <div style="font-size:0.68rem; margin-top:4px;" id="signRole">—</div>
+                        <div class="timestamp" id="signTimestamp">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+        <!-- Agreement Form -->
+        <div class="sidebar-card">
+            <div class="sidebar-card-header">// Sign Agreement</div>
+            <div class="sidebar-card-body">
+                <div class="form-group">
+                    <label class="form-label" for="identitySelect">Entity Type</label>
+                    <select class="form-select" id="identitySelect">
+                        <option value="company">🏢 Company / Client</option>
+                        <option value="researcher">🛡️ Security Researcher</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="entityName">Name / Alias</label>
+                    <input class="form-input" type="text" id="entityName" placeholder="Full name or researcher alias">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="entityEmail">Email Address</label>
+                    <input class="form-input" type="email" id="entityEmail" placeholder="email@domain.com">
+                </div>
+                <button class="btn btn-primary-act" id="signBtn">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7H12M8 3L12 7L8 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Accept & Sign Policy
+                </button>
+                <button class="btn btn-dl" id="downloadBtn" disabled>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2V10M4 7L7 10L10 7M2 12H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Download PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="sidebar-card">
+            <div class="sidebar-card-header">// Document Status</div>
+            <div class="sidebar-card-body">
+                <div class="info-row">
+                    <span class="label">Revision</span>
+                    <span class="val">2025.1</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Jurisdiction</span>
+                    <span class="val">Global</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Standard</span>
+                    <span class="val">ISO 29147</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Disclosure</span>
+                    <span class="val">CVD 90-day</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Signature</span>
+                    <span class="val pending" id="statusSig">PENDING</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="sidebar-card">
+            <div class="sidebar-card-header">// Legal Notice</div>
+            <div class="sidebar-card-body" style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); line-height: 1.7;">
+                <p>By signing, you confirm you have read and understood all clauses in this agreement. This document constitutes a legally binding contract under applicable law.</p>
+                <br>
+                <p style="color: var(--text-dim);">Ezekiel//sec reserves the right to update this policy at any time. Continued engagement constitutes acceptance.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+    © 2025 Ezekiel//sec — Zero Trust Pentesting & BBP Maintenance. All agreements enforced.
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-card">
+        <div class="modal-eyebrow">// Confirmation Required</div>
+        <div class="modal-title">Review & Confirm</div>
+        <div class="modal-sub" id="modalSummary">Please review your details before accepting the policy.</div>
+        <div class="modal-actions">
+            <button class="modal-cancel" id="modalCancel">Go Back</button>
+            <button class="modal-confirm" id="modalConfirm">Confirm & Accept →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elements
+    const signBtn = document.getElementById('signBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const entityName = document.getElementById('entityName');
+    const entityEmail = document.getElementById('entityEmail');
+    const identitySelect = document.getElementById('identitySelect');
+    const signBlock = document.getElementById('signBlock');
+    const signName = document.getElementById('signName');
+    const signEmail = document.getElementById('signEmail');
+    const signRole = document.getElementById('signRole');
+    const signTimestamp = document.getElementById('signTimestamp');
+    const statusSig = document.getElementById('statusSig');
+    const confirmModal = document.getElementById('confirmModal');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalSummary = document.getElementById('modalSummary');
+
+    let currentData = null;
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    signBtn.addEventListener('click', () => {
+        const name = entityName.value.trim();
+        const email = entityEmail.value.trim();
+        const identity = identitySelect.value;
+
+        if (!name) { entityName.focus(); shake(entityName); return; }
+        if (!email || !email.includes('@') || !email.includes('.')) { entityEmail.focus(); shake(entityEmail); return; }
+
+        const roleLabel = identity === 'company' ? 'Company / Client' : 'Security Researcher';
+        modalSummary.innerHTML = `You are signing as <strong>${escapeHtml(roleLabel)}</strong>:<br><br>
+            <span style="font-family:var(--mono);font-size:0.75rem;color:var(--accent2);">${escapeHtml(name)}</span><br>
+            <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text-muted);">${escapeHtml(email)}</span>`;
+
+        currentData = { name, email, identity, roleLabel };
+        confirmModal.classList.add('active');
+    });
+
+    modalCancel.addEventListener('click', () => confirmModal.classList.remove('active'));
+    confirmModal.addEventListener('click', e => { if (e.target === confirmModal) confirmModal.classList.remove('active'); });
+
+    modalConfirm.addEventListener('click', () => {
+        confirmModal.classList.remove('active');
+        applySignature(currentData);
+    });
+
+    function applySignature(data) {
+        const ts = new Date().toUTCString();
+        signName.textContent = data.name;
+        signEmail.textContent = data.email;
+        signRole.textContent = '↳ ' + data.roleLabel;
+        signTimestamp.textContent = 'Digitally accepted via Ezekiel//sec portal on ' + ts;
+        signBlock.style.display = 'block';
+
+        // Update status
+        statusSig.textContent = 'SIGNED';
+        statusSig.className = 'val ok';
+
+        // Scroll sign block into view
+        signBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        downloadBtn.disabled = false;
+        downloadBtn.style.opacity = '1';
+    }
+
+    function shake(el) {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = 'shake 0.3s ease';
+        el.style.borderColor = 'var(--red)';
+        setTimeout(() => { el.style.borderColor = ''; }, 1000);
+    }
+
+    // ===== PDF DOWNLOAD =====
+    downloadBtn.addEventListener('click', async () => {
+        if (!currentData) return;
+
+        downloadBtn.disabled = true;
+        downloadBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" stroke-dasharray="8 4"><animateTransform attributeName="transform" type="rotate" from="0 7 7" to="360 7 7" dur="0.8s" repeatCount="indefinite"/></circle></svg> Generating...';
+
+        try {
+            const pdfContent = buildPDFContent(currentData);
+
+            // Wrapper
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = `
+                width: 794px;
+                padding: 48px 56px;
+                background: #080A10;
+                font-family: 'Space Mono', monospace;
+                color: #C4D0E8;
+                font-size: 10px;
+                line-height: 1.7;
+                box-sizing: border-box;
+            `;
+            wrapper.innerHTML = pdfContent;
+
+            document.body.appendChild(wrapper);
+
+            const opt = {
+                margin: 0,
+                filename: `EzekielSec_Policy_${currentData.name.replace(/\W+/g,'_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    backgroundColor: '#080A10',
+                    useCORS: true,
+                    letterRendering: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 794
+                },
+                jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait', hotfixes: ['px_scaling'] },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            await html2pdf().set(opt).from(wrapper).save();
+            document.body.removeChild(wrapper);
+        } catch(err) {
+            console.error(err);
+            alert('PDF generation failed. Please try again.');
+        }
+
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2V10M4 7L7 10L10 7M2 12H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Download PDF`;
+    });
+
+    function buildPDFContent(data) {
+        const ts = new Date().toUTCString();
+        const esc = escapeHtml;
+
+        return `
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family: 'Space Mono', monospace; }
+            .pdf-page { width:100%; background:#080A10; color:#C4D0E8; font-size:10px; line-height:1.7; }
+            .pdf-header { text-align:center; padding:0 0 24px 0; border-bottom:2px solid #2A7DE1; margin-bottom:28px; }
+            .pdf-logo { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:#fff; letter-spacing:-0.02em; margin-bottom:4px; }
+            .pdf-logo .slash { color:#2A7DE1; }
+            .pdf-doc-title { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#fff; margin:10px 0 4px; }
+            .pdf-doc-sub { font-size:9px; color:#8894AC; letter-spacing:0.08em; }
+            .pdf-watermark { display:flex; align-items:center; gap:8px; font-size:9px; color:#2A7DE1; border:1px solid rgba(42,125,225,0.25); background:rgba(42,125,225,0.07); border-radius:6px; padding:7px 12px; margin-bottom:20px; }
+            .pdf-section-title { font-family:'Syne',sans-serif; font-size:9px; font-weight:700; color:#4F9EFF; letter-spacing:0.12em; text-transform:uppercase; margin:22px 0 8px; display:flex; align-items:center; gap:8px; }
+            .pdf-section-title::before { content:''; display:inline-block; width:14px; height:2px; background:#4F9EFF; }
+            .pdf-sub-title { font-family:'Syne',sans-serif; font-size:9.5px; font-weight:600; color:#E8EEF8; margin:10px 0 4px; }
+            p { margin-bottom:6px; }
+            ul { list-style:none; margin:6px 0; }
+            ul li { padding-left:14px; position:relative; margin-bottom:4px; }
+            ul li::before { content:'→'; position:absolute; left:0; color:#2A7DE1; }
+            hr { border:none; border-top:1px solid rgba(42,125,225,0.12); margin:18px 0; }
+            .pdf-sign-block { margin-top:24px; padding:16px; border:1px dashed rgba(42,125,225,0.35); border-radius:8px; background:rgba(42,125,225,0.06); page-break-inside:avoid; }
+            .pdf-sign-label { font-size:8px; color:#5A6580; text-transform:uppercase; letter-spacing:0.1em; }
+            .pdf-sign-name { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; color:#4F9EFF; margin:6px 0 2px; }
+            .pdf-sign-email { font-size:9px; color:#8894AC; }
+            .pdf-sign-role { font-size:9px; color:#8894AC; margin-top:2px; }
+            .pdf-sign-ts { font-size:8px; color:#5A6580; margin-top:6px; }
+            .pdf-footer { text-align:center; margin-top:32px; padding-top:16px; border-top:1px solid rgba(42,125,225,0.15); font-size:8px; color:#5A6580; letter-spacing:0.06em; }
+        </style>
+        <div class="pdf-page">
+            <div class="pdf-header">
+                <div class="pdf-logo">Ezekiel<span class="slash">//</span>sec</div>
+                <div class="pdf-doc-title">Operational Policy Manual</div>
+                <div class="pdf-doc-sub">// RULES OF ENGAGEMENT — BINDING LEGAL FRAMEWORK — REV. 2026.1</div>
+            </div>
+
+            <div class="pdf-watermark">★ EZEKIEL//SEC — UNCLASSIFIED POLICY DOCUMENT — SIGNED BY: ${esc(data.email)}</div>
+
+            <div class="pdf-section-title">1. Purpose and Scope</div>
+            <p>This policy establishes binding rules for all penetration testing engagements and Bug Bounty Program (BBP) maintenance conducted by Ezekiel//sec. It applies to internal employees, subcontractors, and external security researchers. Adherence guarantees client safety and legal compliance.</p>
+
+            <hr>
+
+            <div class="pdf-section-title">2. The "Safety Assurance" Client Pledge</div>
+            <div class="pdf-sub-title">No Operational Impact Guarantee</div>
+            <p>Testing prioritizes safety; no fuzzing on production auth modules without explicit authorization.</p>
+            <div class="pdf-sub-title">Data Privacy & Integrity</div>
+            <p>Exfiltration prohibited; proof via metadata only.</p>
+            <div class="pdf-sub-title">Confidentiality (Zero Spill)</div>
+            <p>Findings treated as client IP. Strict Clean Desk policy enforced across all engagements.</p>
+            <div class="pdf-sub-title">Legal Safe Harbor</div>
+            <p>Binding Safe Harbor Letter provided to all researchers upon engagement initiation.</p>
+
+            <hr>
+
+            <div class="pdf-section-title">Part A — Client Rules of Engagement (RoE)</div>
+            <div class="pdf-sub-title">Authorization & Scope</div>
+            <p>Signed authorization required before any engagement begins. Scope Boundary Table defines in-scope assets with precision. Third-party authorization remains the client's responsibility.</p>
+            <div class="pdf-sub-title">Critical Findings Protocol</div>
+            <p>Testing halts immediately upon discovery of critical/zero-day vulnerabilities. Client notified within 1 hour. Coordinated Vulnerability Disclosure (CVD) 90-day timeline enforced before any public release.</p>
+            <div class="pdf-sub-title">Testing Rules (Do's and Don'ts)</div>
+            <ul>
+                <li><strong>Social Engineering:</strong> Restricted — requires explicit written sign-off.</li>
+                <li><strong>Physical Intrusion:</strong> Restricted — legal waiver required.</li>
+                <li><strong>DoS / Fuzzing:</strong> Prohibited unless destructive testing waiver is signed.</li>
+                <li><strong>Privilege Escalation:</strong> Allowed for PoC only — no persistent backdoors.</li>
+                <li><strong>Data Exfiltration:</strong> Strictly prohibited — directory listing/metadata only.</li>
+            </ul>
+
+            <hr>
+
+            <div class="pdf-section-title">Part B — Bug Bounty Program (BBP) Management</div>
+            <div class="pdf-sub-title">ISO 29147 Standard</div>
+            <p>Report submission via encrypted channel → triage within 24h → client notification. Researcher embargo enforced until patch is ready and deployed.</p>
+            <div class="pdf-sub-title">Safe Harbor Promise</div>
+            <p>No legal action against researchers who stop at data exposure, avoid service interruption, and respect embargo timelines.</p>
+            <div class="pdf-sub-title">Duplicate & Re-test Rules</div>
+            <p>First report timestamp determines bounty eligibility. Re-test conducted only after patch deployment is confirmed.</p>
+
+            <hr>
+
+            <div class="pdf-section-title">Part C — Internal Code of Conduct</div>
+            <div class="pdf-sub-title">Do No Harm</div>
+            <p>No trolling or harassment of client staff. If illegal content is encountered, all testing stops immediately and CISO is notified within the hour.</p>
+            <div class="pdf-sub-title">Confidentiality & Data Handling</div>
+            <p>PGP encryption mandatory for all reports. Clean Desk: client data wiped after engagement per DoD 5220.22-M standard.</p>
+            <div class="pdf-sub-title">Compliance with Law (CERT-In, GDPR/CCPA)</div>
+            <p>Critical infrastructure findings reported as per regulatory mandate. No EU/CA user data processed without a valid DPA in place.</p>
+
+            <hr>
+
+            <div class="pdf-section-title">4. Breach of Policy & Remedies</div>
+            <div class="pdf-sub-title">For Clients</div>
+            <p>If Ezekiel//sec violates RoE, client may terminate engagement immediately with full refund.</p>
+            <div class="pdf-sub-title">For Researchers / Hackers</div>
+            <p>Minor violation: warning issued and/or report rejection. Severe violation (unauthorized data access): permanent ban, forfeited bounties, and law enforcement notification.</p>
+            <div class="pdf-sub-title">Internal Staff</div>
+            <p>Immediate termination and full legal liability without exception.</p>
+
+            <hr>
+
+            <div class="pdf-section-title">5. Sign-off & Acceptance</div>
+            <p>By initiating a penetration test or joining the Ezekiel//sec Bug Bounty Program, the undersigned acknowledges and accepts full agreement to these Rules of Engagement, including all clauses regarding safe harbor, responsible disclosure, and operational conduct.</p>
+
+            <div class="pdf-sign-block">
+                <div class="pdf-sign-label">Digitally Accepted By</div>
+                <div class="pdf-sign-name">${esc(data.name)}</div>
+                <div class="pdf-sign-email">${esc(data.email)}</div>
+                <div class="pdf-sign-role">↳ ${esc(data.roleLabel)}</div>
+                <div class="pdf-sign-ts">Digitally accepted via Ezekiel//sec portal on ${esc(ts)}</div>
+            </div>
+
+            <div class="pdf-footer">
+                © 2025 EZEKIEL//SEC — ZERO TRUST PENTESTING & BBP MAINTENANCE — ALL AGREEMENTS ENFORCED<br>
+                This document is legally binding upon acceptance. Unauthorized reproduction is prohibited.
+            </div>
+        </div>
+        `;
+    }
+
+    // Shake animation
+    const style = document.createElement('style');
+    style.textContent = `@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }`;
+    document.head.appendChild(style);
+</script>
+</body>
+</html>

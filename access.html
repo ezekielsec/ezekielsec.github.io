@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ezekiel | Access Blocked</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ========== EZEKIEL THEME v1.0 ========== */
+        /* Complete dark/glowing cyber-security theme */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0C12;
+            color: #EFF3FC;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* custom glowing scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141824;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A7DE1;
+            border-radius: 10px;
+        }
+
+        /* container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* glassmorphic navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 12, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(42, 125, 225, 0.2);
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #FFFFFF 0%, #2A7DE1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span {
+            color: #2A7DE1;
+            background: none;
+        }
+
+        /* back link */
+        .back-link {
+            color: #EFF3FC;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(42,125,225,0.12);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(42,125,225,0.3);
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: rgba(42,125,225,0.25);
+            color: #2A7DE1;
+        }
+
+        /* main content - centered blocked message */
+        .blocked-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+        .blocked-card {
+            background: #11131C;
+            border-radius: 48px;
+            border: 1px solid #202433;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            transition: 0.25s ease;
+            backdrop-filter: blur(4px);
+            position: relative;
+            overflow: hidden;
+        }
+        .blocked-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #ff3b3b, #ff3b3b, transparent);
+        }
+        .blocked-card:hover {
+            border-color: #ff3b3b;
+            transform: translateY(-4px);
+            box-shadow: 0 25px 40px -15px rgba(255, 59, 59, 0.2);
+        }
+        .blocked-icon {
+            font-size: 5rem;
+            color: #ff3b3b;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 12px rgba(255, 59, 59, 0.3));
+        }
+        .blocked-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, #FFFFFF, #2A7DE1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .blocked-message {
+            font-size: 1.2rem;
+            color: #B8C5E0;
+            margin-bottom: 1.5rem;
+        }
+        .blocked-sub {
+            color: #8E9AAF;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            border-top: 1px solid #202433;
+            padding-top: 1.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(95deg, #2A7DE1 0%, #1C4F8F 100%);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-block;
+            text-decoration: none;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(42,125,225,0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(42,125,225,0.3);
+            background: linear-gradient(95deg, #3A8DF1 0%, #2A6ECF 100%);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #2A7DE1;
+            padding: 0.75rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: white;
+            transition: 0.2s;
+            cursor: pointer;
+            display: inline-block;
+            text-decoration: none;
+            margin-left: 0.8rem;
+        }
+        .btn-outline:hover {
+            background: rgba(42,125,225,0.1);
+            border-color: #5A9EFF;
+        }
+        .status-code {
+            font-family: monospace;
+            font-size: 0.8rem;
+            background: #0A0C12;
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            color: #ff5e5e;
+            border: 1px solid #ff3b3b30;
+            margin-top: 1rem;
+        }
+
+        footer {
+            background: #06080F;
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid #1A1E2C;
+            color: #6C7A96;
+            margin-top: auto;
+        }
+
+        @media (max-width: 560px) {
+            .blocked-card {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            .blocked-title {
+                font-size: 1.6rem;
+            }
+            .blocked-icon {
+                font-size: 3.5rem;
+            }
+            .btn-outline {
+                margin-left: 0;
+                margin-top: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">EZEKIEL<span>//</span>SEC</div>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Main</a>
+        </div>
+    </nav>
+
+    <div class="blocked-container">
+        <div class="container">
+            <div class="blocked-card">
+                <div class="blocked-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="blocked-title">
+                    ACCESS <span class="gradient-text">BLOCKED</span>
+                </div>
+                <div class="blocked-message">
+                    Access to this file has been blocked.
+                </div>
+                <div class="blocked-sub">
+                    <i class="fas fa-shield-alt" style="color: #2A7DE1; margin-right: 6px;"></i>
+                    You do not have permission to view this resource. This incident has been logged.
+                </div>
+                <div>
+                    <a href="index.html" class="btn-primary"><i class="fas fa-home"></i> Return to Home</a>
+                    <a href="#" class="btn-outline" id="reportBtn"><i class="fas fa-flag"></i> Report Issue</a>
+                </div>
+                <div class="status-code">
+                    <i class="fas fa-code"></i> HTTP 403 | Forbidden
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Ezekiel — Offensive Security. Unauthorized access is prohibited.</p>
+            <p style="margin-top: 0.4rem;"><i class="fas fa-terminal"></i> Silent. Precise. Relentless.</p>
+        </div>
+    </footer>
+
+    <script>
+        // navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(10, 12, 18, 0.96)';
+                navbar.style.backdropFilter = 'blur(16px)';
+            } else {
+                navbar.style.background = 'rgba(10, 12, 18, 0.85)';
+            }
+        });
+
+        // simple report alert
+        document.getElementById('reportBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("If you believe this is an error, please contact the system administrator.\n\nReference: EZK-403-" + Math.floor(Date.now() / 1000));
+        });
+    </script>
+</body>
+</html>

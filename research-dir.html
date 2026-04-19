@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ezekiel Labs | Research Directory (Custom Links)</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0C12;
+            color: #EFF3FC;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141824;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A7DE1;
+            border-radius: 10px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 12, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(42, 125, 225, 0.2);
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #FFFFFF 0%, #2A7DE1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span {
+            color: #2A7DE1;
+            background: none;
+        }
+        .back-link {
+            color: #EFF3FC;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(42,125,225,0.12);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(42,125,225,0.3);
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: rgba(42,125,225,0.25);
+            color: #2A7DE1;
+        }
+
+        /* Hero */
+        .directory-hero {
+            margin-top: 100px;
+            padding: 40px 0 30px;
+        }
+        .research-badge {
+            background: rgba(42,125,225,0.15);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            width: fit-content;
+            margin-bottom: 1.2rem;
+            border-left: 3px solid #2A7DE1;
+        }
+        .directory-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.8rem;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, #FFFFFF, #2A7DE1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .subhead {
+            color: #8E9AAF;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        /* Search bar */
+        .search-section {
+            margin: 1.5rem 0 2rem;
+        }
+        .search-wrapper {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: #11131C;
+            border-radius: 60px;
+            padding: 0.3rem 0.3rem 0.3rem 1.5rem;
+            border: 1px solid #202433;
+            transition: 0.2s;
+        }
+        .search-wrapper:focus-within {
+            border-color: #2A7DE1;
+            box-shadow: 0 0 0 2px rgba(42,125,225,0.2);
+        }
+        .search-wrapper i {
+            color: #2A7DE1;
+            font-size: 1.2rem;
+        }
+        .search-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1rem 0;
+            font-size: 1rem;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+        .search-wrapper input::placeholder {
+            color: #5F6F8A;
+        }
+        .search-wrapper button {
+            background: linear-gradient(95deg, #2A7DE1 0%, #1C4F8F 100%);
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .search-wrapper button:hover {
+            transform: scale(0.97);
+            background: #3A8DF1;
+        }
+        .stats-badge {
+            display: inline-block;
+            background: #1A1E2C;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        /* Research List (Directory) */
+        .research-list {
+            margin: 2rem 0 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .research-item {
+            background: #11131C;
+            border-radius: 24px;
+            border: 1px solid #202433;
+            padding: 1.2rem 1.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .research-item:hover {
+            border-color: #2A7DE1;
+            transform: translateX(6px);
+            background: #151A26;
+        }
+        .research-info h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .research-info p {
+            font-size: 0.85rem;
+            color: #8E9AAF;
+        }
+        .research-meta-small {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.4rem;
+            font-size: 0.7rem;
+            color: #5F6F8A;
+        }
+        .research-meta-small i {
+            color: #2A7DE1;
+            width: 14px;
+        }
+        .research-link {
+            background: rgba(42,125,225,0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(42,125,225,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .research-link i {
+            font-size: 0.7rem;
+        }
+        .file-badge {
+            font-family: monospace;
+            font-size: 0.7rem;
+            background: #0A0C12;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            margin-left: 6px;
+            color: #2A7DE1;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: #11131C;
+            border-radius: 32px;
+            color: #6C7A96;
+        }
+
+        /* Add New Research Form — with custom link field */
+        .add-form-section {
+            background: #0E1120;
+            border-radius: 32px;
+            border: 1px solid #202433;
+            padding: 1.8rem;
+            margin: 2rem 0 3rem;
+        }
+        .form-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-title i {
+            color: #2A7DE1;
+        }
+        .form-desc {
+            color: #8E9AAF;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        .form-group input, .form-group textarea {
+            flex: 1;
+            background: #1A1E2C;
+            border: 1px solid #2A2F3F;
+            padding: 0.8rem 1rem;
+            border-radius: 20px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #2A7DE1;
+        }
+        .form-group textarea {
+            min-width: 100%;
+            resize: vertical;
+        }
+        .link-hint {
+            font-size: 0.7rem;
+            color: #5F6F8A;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .btn-add {
+            background: #2A7DE1;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-add:hover {
+            background: #3A8DF1;
+            transform: translateY(-2px);
+        }
+        .helper-note {
+            font-size: 0.75rem;
+            color: #5F6F8A;
+            margin-top: 1rem;
+            border-top: 1px solid #202433;
+            padding-top: 1rem;
+        }
+        .warning-note {
+            background: rgba(255, 100, 100, 0.1);
+            border-left: 3px solid #ff6b6b;
+            padding: 0.6rem 1rem;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            margin-top: 0.8rem;
+        }
+
+        footer {
+            background: #06080F;
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid #1A1E2C;
+            color: #6C7A96;
+            margin-top: 2rem;
+        }
+        @media (max-width: 700px) {
+            .research-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .directory-hero h1 {
+                font-size: 2rem;
+            }
+            .search-wrapper {
+                border-radius: 30px;
+            }
+            .search-wrapper button {
+                padding: 0.5rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">EZEKIEL<span>//</span>SEC</div>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Main</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="directory-hero">
+                <div class="research-badge"><i class="fas fa-folder-open"></i> Ezekiel Research Index</div>
+                <h1>Research <span class="gradient-text">Directory</span></h1>
+                <p class="subhead">Browse all published offensive security papers. Each entry links to a custom HTML file you define. Add new papers with your own filename and title.</p>
+            </div>
+
+            <!-- Search + client-side filtering -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by title, author, or keywords..." autocomplete="off">
+                    <button id="searchBtn"><i class="fas fa-filter"></i> Search</button>
+                </div>
+                <div class="stats-badge" id="resultStats">Showing all papers</div>
+            </div>
+
+            <!-- Dynamic Research List (Directory) -->
+            <div id="researchListContainer" class="research-list">
+                <!-- items injected via JS -->
+            </div>
+
+            <!-- ========== ADD NEW RESEARCH FORM (with custom LINK option) ========== -->
+            <div class="add-form-section" id="addPaperForm">
+                <div class="form-title">
+                    <i class="fas fa-plus-circle"></i> 
+                    Add New Research Entry
+                    <span style="font-size: 0.7rem; background: #1A1E2C; padding: 2px 8px; border-radius: 20px;">custom link ready</span>
+                </div>
+                <div class="form-desc">
+                    Fill the fields below to create a new directory entry. When you click "Read Paper →", it will navigate to the HTML file you specify. <strong>You have full control over the target filename.</strong>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="paperTitle" placeholder="Research Title (e.g. 'Advanced Kernel Evasion Techniques')" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="paperAuthor" placeholder="Author(s) / Lab (e.g. Ezekiel Research Team)">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="paperDate" placeholder="Date (e.g. April 2026)">
+                </div>
+                <div class="form-group">
+                    <textarea id="paperDesc" rows="2" placeholder="Short description / abstract (visible in directory list)"></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="paperTags" placeholder="Tags: evasion, windows, c2 (comma separated)">
+                </div>
+                <!-- NEW: Custom link field -->
+                <div class="form-group">
+                    <input type="text" id="paperLink" placeholder="HTML file link (e.g. research/awesome-paper.html or my-paper.html)" required>
+                </div>
+                <div class="link-hint">
+                    <i class="fas fa-link"></i> Specify the exact relative path or filename. Example: <strong>research1.html</strong> , <strong>papers/advanced-edr.html</strong> , <strong>my-custom-page.html</strong>
+                </div>
+                <button id="createPaperBtn" class="btn-add"><i class="fas fa-file-alt"></i> Create Research Entry →</button>
+                <div class="helper-note">
+                    <i class="fas fa-info-circle"></i> Each entry will appear in the directory. Clicking "Read Paper" will open the exact HTML file you provided. You can later create those HTML files with your own content (use the research template from main site). The directory acts as a smart index.
+                </div>
+                <div class="warning-note">
+                    <i class="fas fa-exclamation-triangle"></i> Make sure the HTML file you link actually exists in your project folder, otherwise the browser will show a 404. You can create those files manually using the research paper template.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Ezekiel — Offensive Security Research Directory. Custom link manager.</p>
+            <p style="margin-top: 0.5rem;"><i class="fas fa-database"></i> All entries stored locally | Links point to your custom HTML files</p>
+        </div>
+    </footer>
+
+    <script>
+        // ------------------------------
+        // Research Directory Manager (localStorage)
+        // Each entry: { id, title, author, date, description, tags, customLink }
+        // ------------------------------
+        let researchPapers = [];
+
+        // Load from localStorage
+        function loadPapers() {
+            const stored = localStorage.getItem('ezekiel_research_papers_v2');
+            if (stored) {
+                researchPapers = JSON.parse(stored);
+            } else {
+                // Default seed papers with custom links (examples)
+                researchPapers = [
+                    {
+                        id: "paper_1",
+                        title: "Bypassing Modern EDR Hooks: A Userland Perspective",
+                        author: "Ezekiel Offensive Team",
+                        date: "March 2026",
+                        description: "Analysis of API unhooking techniques that evade leading EDR solutions.",
+                        tags: "evasion, edr, windows",
+                        customLink: "research1.html"
+                    },
+                    {
+                        id: "paper_2",
+                        title: "DNS over HTTPS C2 Channels: Detection & Mitigation",
+                        author: "M. Zhorov & K. Vance",
+                        date: "February 2026",
+                        description: "Novel command & control using encrypted DNS, with detection rules.",
+                        tags: "c2, network, doh",
+                        customLink: "research2.html"
+                    },
+                    {
+                        id: "paper_3",
+                        title: "Windows Kernel Callbacks for Persistence",
+                        author: "Ezekiel Research Lab",
+                        date: "January 2026",
+                        description: "Leveraging registry and process creation callbacks for stealth persistence.",
+                        tags: "kernel, persistence, windows",
+                        customLink: "research3.html"
+                    }
+                ];
+                syncToLocalStorage();
+            }
+            renderResearchList();
+        }
+
+        function syncToLocalStorage() {
+            localStorage.setItem('ezekiel_research_papers_v2', JSON.stringify(researchPapers));
+        }
+
+        // Helper: sanitize for display
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        function renderResearchList(filterText = '') {
+            const container = document.getElementById('researchListContainer');
+            const statsSpan = document.getElementById('resultStats');
+            let filtered = [...researchPapers];
+            if (filterText.trim() !== '') {
+                const term = filterText.toLowerCase();
+                filtered = researchPapers.filter(p => 
+                    p.title.toLowerCase().includes(term) || 
+                    p.author.toLowerCase().includes(term) || 
+                    p.description.toLowerCase().includes(term) ||
+                    p.tags.toLowerCase().includes(term)
+                );
+            }
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i> <br>No research papers match your search. Use the form above to add one.</div>`;
+                statsSpan.innerHTML = `0 papers found`;
+                return;
+            }
+            statsSpan.innerHTML = `Showing ${filtered.length} of ${researchPapers.length} papers`;
+            container.innerHTML = filtered.map(paper => `
+                <div class="research-item" data-id="${paper.id}">
+                    <div class="research-info">
+                        <h3><i class="fas fa-file-alt" style="color:#2A7DE1; margin-right:8px;"></i> ${escapeHtml(paper.title)}</h3>
+                        <p>${escapeHtml(paper.description)}</p>
+                        <div class="research-meta-small">
+                            <span><i class="fas fa-user-pen"></i> ${escapeHtml(paper.author)}</span>
+                            <span><i class="fas fa-calendar-week"></i> ${escapeHtml(paper.date)}</span>
+                            <span><i class="fas fa-tags"></i> ${escapeHtml(paper.tags)}</span>
+                            <span><i class="fas fa-file-code"></i> <span class="file-badge">${escapeHtml(paper.customLink)}</span></span>
+                        </div>
+                    </div>
+                    <div class="research-link">
+                        <i class="fas fa-external-link-alt"></i> Read Paper →
+                    </div>
+                </div>
+            `).join('');
+            
+            // attach click events: navigate to the custom HTML link
+            document.querySelectorAll('.research-item').forEach(el => {
+                const paperId = el.getAttribute('data-id');
+                const paper = researchPapers.find(p => p.id === paperId);
+                if (paper) {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Navigate to the user-defined custom link (HTML file)
+                        if (paper.customLink && paper.customLink.trim() !== '') {
+                            window.location.href = paper.customLink;
+                        } else {
+                            alert("This paper has no valid link defined. Please edit and add a custom HTML file path.");
+                        }
+                    });
+                }
+            });
+        }
+
+        // Add new research entry with custom link
+        function addNewPaper(title, author, date, description, tags, customLink) {
+            if (!title.trim()) { alert("Research Title is required"); return false; }
+            if (!customLink.trim()) { alert("Custom HTML file link is required (e.g., my-research.html)"); return false; }
+            
+            // Validate link doesn't contain dangerous patterns but allow relative paths
+            const linkVal = customLink.trim();
+            if (linkVal.includes("javascript:") || linkVal.includes("data:")) {
+                alert("Invalid link format. Use simple relative path like 'paper-name.html'");
+                return false;
+            }
+            
+            // Check for duplicate customLink (optional warning)
+            const existing = researchPapers.find(p => p.customLink === linkVal);
+            if (existing) {
+                if (!confirm(`Warning: Another paper already links to "${linkVal}". Continuing may override the reference. Do you want to proceed?`)) {
+                    return false;
+                }
+            }
+            
+            const newId = "paper_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+            const newPaper = {
+                id: newId,
+                title: title.trim(),
+                author: author.trim() || "Ezekiel Labs",
+                date: date.trim() || new Date().toLocaleDateString('en-US', { year:'numeric', month:'long' }),
+                description: description.trim() || "No abstract provided.",
+                tags: tags.trim() || "general",
+                customLink: linkVal
+            };
+            researchPapers.push(newPaper);
+            syncToLocalStorage();
+            renderResearchList(document.getElementById('searchInput').value);
+            
+            // Clear form
+            document.getElementById('paperTitle').value = '';
+            document.getElementById('paperAuthor').value = '';
+            document.getElementById('paperDate').value = '';
+            document.getElementById('paperDesc').value = '';
+            document.getElementById('paperTags').value = '';
+            document.getElementById('paperLink').value = '';
+            
+            alert(`Research entry "${newPaper.title}" created! It points to: ${newPaper.customLink}. Make sure that HTML file exists.`);
+            return true;
+        }
+
+        // Delete / edit helpers (optional) – but we also provide ability to delete via localStorage console. For simplicity, provide a small admin: double-click to remove? 
+        // Add optional delete button per item? But user can also clear localStorage. However to make it user friendly, I'll add right-click context? Better to include a small "delete" icon on hover?
+        // To improve UX: I'll add a delete (trash) icon on each research item (without breaking design). Let's do it elegantly.
+        function enhanceWithDelete() {
+            // After each render we attach delete listener? We'll modify render to include a delete button, but without overcomplicating: we add a small delete icon via event delegation.
+            // Simpler: add a delete button inside research-link area? But research-link is clickable. Instead we add a separate icon.
+            // Re-render to include trash icon. Let's override renderResearchList to include delete button.
+        }
+        
+        // Improved render with delete option (X icon) that doesn't conflict with main click
+        const originalRender = renderResearchList;
+        window.renderResearchList = function(filterText = '') {
+            const container = document.getElementById('researchListContainer');
+            const statsSpan = document.getElementById('resultStats');
+            let filtered = [...researchPapers];
+            if (filterText.trim() !== '') {
+                const term = filterText.toLowerCase();
+                filtered = researchPapers.filter(p => 
+                    p.title.toLowerCase().includes(term) || 
+                    p.author.toLowerCase().includes(term) || 
+                    p.description.toLowerCase().includes(term) ||
+                    p.tags.toLowerCase().includes(term)
+                );
+            }
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i> <br>No research papers match your search. Use the form above to add one.</div>`;
+                statsSpan.innerHTML = `0 papers found`;
+                return;
+            }
+            statsSpan.innerHTML = `Showing ${filtered.length} of ${researchPapers.length} papers`;
+            container.innerHTML = filtered.map(paper => `
+                <div class="research-item" data-id="${paper.id}">
+                    <div class="research-info" style="flex:1;">
+                        <h3><i class="fas fa-file-alt" style="color:#2A7DE1; margin-right:8px;"></i> ${escapeHtml(paper.title)}</h3>
+                        <p>${escapeHtml(paper.description)}</p>
+                        <div class="research-meta-small">
+                            <span><i class="fas fa-user-pen"></i> ${escapeHtml(paper.author)}</span>
+                            <span><i class="fas fa-calendar-week"></i> ${escapeHtml(paper.date)}</span>
+                            <span><i class="fas fa-tags"></i> ${escapeHtml(paper.tags)}</span>
+                            <span><i class="fas fa-file-code"></i> <span class="file-badge">${escapeHtml(paper.customLink)}</span></span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="research-link" style="cursor:pointer;">
+                            <i class="fas fa-external-link-alt"></i> Read Paper →
+                        </div>
+                        <div class="delete-paper-btn" data-id="${paper.id}" style="background: rgba(255,80,80,0.15); padding: 0.4rem 0.8rem; border-radius: 40px; cursor:pointer; transition:0.2s; border: 1px solid rgba(255,80,80,0.3);">
+                            <i class="fas fa-trash-alt" style="color: #ff7b7b; font-size: 0.8rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Attach click for reading (custom link)
+            document.querySelectorAll('.research-item .research-link').forEach((linkEl, idx) => {
+                const parentItem = linkEl.closest('.research-item');
+                if (parentItem) {
+                    const paperId = parentItem.getAttribute('data-id');
+                    const paper = researchPapers.find(p => p.id === paperId);
+                    if (paper) {
+                        linkEl.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (paper.customLink && paper.customLink.trim() !== '') {
+                                window.location.href = paper.customLink;
+                            } else {
+                                alert("Invalid link path");
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // Attach delete functionality
+            document.querySelectorAll('.delete-paper-btn').forEach(deleteBtn => {
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const paperId = deleteBtn.getAttribute('data-id');
+                    const paperToDelete = researchPapers.find(p => p.id === paperId);
+                    if (paperToDelete && confirm(`Permanently delete "${paperToDelete.title}" from directory? (HTML file will NOT be deleted, only the directory entry.)`)) {
+                        researchPapers = researchPapers.filter(p => p.id !== paperId);
+                        syncToLocalStorage();
+                        renderResearchList(document.getElementById('searchInput').value);
+                    }
+                });
+            });
+        };
+        
+        // Override original reference
+        renderResearchList = window.renderResearchList;
+        
+        // Event Listeners
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const query = document.getElementById('searchInput').value;
+            renderResearchList(query);
+        });
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                renderResearchList(e.target.value);
+            }
+        });
+        document.getElementById('createPaperBtn').addEventListener('click', () => {
+            const title = document.getElementById('paperTitle').value;
+            const author = document.getElementById('paperAuthor').value;
+            const date = document.getElementById('paperDate').value;
+            const desc = document.getElementById('paperDesc').value;
+            const tags = document.getElementById('paperTags').value;
+            const link = document.getElementById('paperLink').value;
+            addNewPaper(title, author, date, desc, tags, link);
+        });
+        
+        // initial load
+        loadPapers();
+    </script>
+</body>
+</html>

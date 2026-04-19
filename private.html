@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Ezekiel | Private BBP – Bug Bounty Payment Chart</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0C12;
+            color: #EFF3FC;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141824;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A7DE1;
+            border-radius: 10px;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 12, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(42, 125, 225, 0.2);
+            z-index: 1000;
+            transition: 0.3s;
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #FFFFFF 0%, #2A7DE1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .logo span {
+            color: #2A7DE1;
+            background: none;
+        }
+        .back-link {
+            color: #EFF3FC;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(42,125,225,0.12);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(42,125,225,0.3);
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: rgba(42,125,225,0.25);
+            color: #2A7DE1;
+        }
+
+        /* Hero */
+        .bbp-hero {
+            margin-top: 100px;
+            padding: 40px 0 20px;
+        }
+        .bbp-badge {
+            background: rgba(42,125,225,0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            width: fit-content;
+            margin-bottom: 1.2rem;
+            border-left: 3px solid #2A7DE1;
+        }
+        .bbp-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.8rem;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, #FFFFFF, #2A7DE1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .subhead {
+            color: #8E9AAF;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+
+        /* Severity Chart (quick view) */
+        .severity-section {
+            background: #11131C;
+            border-radius: 32px;
+            border: 1px solid #202433;
+            padding: 1.8rem;
+            margin: 2rem 0 2rem;
+        }
+        .section-title-sm {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            border-left: 4px solid #2A7DE1;
+            padding-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .severity-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+            display: block;
+        }
+        .severity-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .severity-table th, .severity-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #202433;
+        }
+        .severity-table th {
+            color: #2A7DE1;
+            font-weight: 600;
+            background: #0E1120;
+        }
+        .severity-table tr:hover {
+            background: rgba(42,125,225,0.05);
+        }
+        .priority-badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        /* Updated badge colors: P3 blue, P4 green, others adjusted */
+        .p1-badge { background: #ff3b3b20; color: #ff5e5e; border: 1px solid #ff3b3b; }
+        .p2-badge { background: #ffa50020; color: #ffb347; border: 1px solid #ffa500; }
+        .p3-badge { background: #2A7DE120; color: #5A9EFF; border: 1px solid #2A7DE1; }  /* BLUE for P3 */
+        .p4-badge { background: #2ecc7120; color: #2ecc71; border: 1px solid #2ecc71; }    /* GREEN for P4 */
+        .p5-badge { background: #6c757d20; color: #adb5bd; border: 1px solid #6c757d; }
+
+        /* Bounty Tiers - glowing cards */
+        .tiers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin: 2rem 0 2rem;
+        }
+        .tier-card {
+            flex: 1;
+            min-width: 280px;
+            background: #11131C;
+            border-radius: 32px;
+            padding: 1.5rem;
+            border: 1px solid #202433;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--glow-color), transparent);
+        }
+        .tier-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.6);
+        }
+        .tier-1 {
+            --glow-color: #2A7DE1;
+            border-top: 1px solid rgba(42,125,225,0.3);
+            box-shadow: 0 0 15px rgba(42,125,225,0.1);
+        }
+        .tier-1:hover {
+            border-color: #2A7DE1;
+            box-shadow: 0 0 25px rgba(42,125,225,0.3);
+        }
+        /* TIER 2 - SILVER GLOW (changed from yellow) */
+        .tier-2 {
+            --glow-color: #C0C0C0;
+            border-top: 1px solid rgba(192,192,192,0.3);
+            box-shadow: 0 0 15px rgba(192,192,192,0.1);
+        }
+        .tier-2:hover {
+            border-color: #E0E0E0;
+            box-shadow: 0 0 25px rgba(192,192,192,0.4);
+        }
+        .tier-3 {
+            --glow-color: #FFB347;
+            border-top: 1px solid rgba(255,180,71,0.3);
+            box-shadow: 0 0 15px rgba(255,180,71,0.1);
+        }
+        .tier-3:hover {
+            border-color: #FFB347;
+            box-shadow: 0 0 25px rgba(255,180,71,0.4);
+        }
+        .tier-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #202433;
+        }
+        .tier-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+        .tier-range {
+            font-size: 1rem;
+            color: #8E9AAF;
+        }
+        .bounty-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px dashed #202433;
+            font-size: 0.9rem;
+        }
+        .bounty-severity {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .bounty-amount {
+            font-weight: 700;
+            color: #2A7DE1;
+        }
+        /* Tier 2 amounts in silver tone */
+        .tier-2 .bounty-amount {
+            color: #C0C0C0;
+        }
+        .tier-3 .bounty-amount {
+            color: #FFB347;
+        }
+        .ack-text {
+            font-style: italic;
+            color: #8E9AAF;
+            font-size: 0.8rem;
+        }
+        .note-box {
+            background: #0E1120;
+            border-radius: 24px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            border-left: 3px solid #2A7DE1;
+        }
+
+        footer {
+            background: #06080F;
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid #1A1E2C;
+            color: #6C7A96;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 860px) {
+            .tiers-container {
+                flex-direction: column;
+            }
+            .bbp-hero h1 {
+                font-size: 2rem;
+            }
+            .severity-table {
+                font-size: 0.8rem;
+            }
+            .severity-table th, .severity-table td {
+                padding: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">EZEKIEL<span>//</span>SEC</div>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Main</a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <div class="bbp-hero">
+                <div class="bbp-badge"><i class="fas fa-bug"></i> Private Bug Bounty Program</div>
+                <h1>Bounty Payment <span class="gradient-text">Chart</span></h1>
+                <p class="subhead">Ezekiel Private BBP follows a severity-based reward structure. Higher impact = higher reward. Below you'll find the severity definitions and the three tier levels with their respective payouts.</p>
+            </div>
+
+            <!-- Severity Chart (Quick View) with updated P3 blue, P4 green badges -->
+            <div class="severity-section">
+                <div class="section-title-sm">
+                    <i class="fas fa-chart-simple"></i> 
+                    🔥 Bug Bounty Severity Chart (Quick View)
+                </div>
+                <div class="severity-table">
+                    <table>
+                        <thead>
+                            <tr><th>Priority</th><th>Severity</th><th>Description</th><th>Example Vulnerabilities</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="priority-badge p1-badge">P1</span></td><td><strong>Critical</strong></td><td>Complete system compromise</td><td>RCE, SQL Injection (auth bypass), Account Takeover (no auth), SSRF → internal access</td></tr>
+                            <tr><td><span class="priority-badge p2-badge">P2</span></td><td><strong>High</strong></td><td>Significant impact, limited constraints</td><td>Stored XSS, IDOR (sensitive data), Privilege Escalation</td></tr>
+                            <tr><td><span class="priority-badge p3-badge">P3</span></td><td><strong>Medium</strong></td><td>Moderate risk, user interaction needed</td><td>Reflected XSS, CSRF (non-critical), partial info disclosure</td></tr>
+                            <tr><td><span class="priority-badge p4-badge">P4</span></td><td><strong>Low</strong></td><td>Minor impact, hard to exploit</td><td>Clickjacking, rate limit issues, verbose errors</td></tr>
+                            <tr><td><span class="priority-badge p5-badge">P5</span></td><td><strong>Informational</strong></td><td>No real security impact</td><td>Missing headers, best practice issues</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bounty Tiers: Tier 1 (Blue Glow), Tier 2 (SILVER Glow), Tier 3 (Gold/Orange Glow) -->
+            <div class="tiers-container">
+                <!-- Tier 1 - Blue Glow -->
+                <div class="tier-card tier-1">
+                    <div class="tier-header">
+                        <div class="tier-name" style="color: #2A7DE1;">Tier 1</div>
+                        <div class="tier-range">💰 $100 – $500</div>
+                        <div style="font-size: 0.7rem; margin-top: 5px; background: rgba(42,125,225,0.15); display: inline-block; padding: 2px 10px; border-radius: 30px;">🔵 Standard Program</div>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p1-badge">P1</span> Critical</span>
+                        <span class="bounty-amount">$500</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p2-badge">P2</span> High</span>
+                        <span class="bounty-amount">$400</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p3-badge">P3</span> Medium</span>
+                        <span class="bounty-amount">$300</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p4-badge">P4</span> Low</span>
+                        <span class="bounty-amount">$200</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p5-badge">P5</span> Informational</span>
+                        <span class="ack-text">🏅 Acknowledgment + Hall of Fame</span>
+                    </div>
+                </div>
+
+                <!-- Tier 2 - SILVER GLOW (updated from yellow) -->
+                <div class="tier-card tier-2">
+                    <div class="tier-header">
+                        <div class="tier-name" style="color: #C0C0C0;">Tier 2</div>
+                        <div class="tier-range">💰 $250 – $2,000</div>
+                        <div style="font-size: 0.7rem; margin-top: 5px; background: rgba(192,192,192,0.15); display: inline-block; padding: 2px 10px; border-radius: 30px;">⚪ Silver Program</div>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p1-badge">P1</span> Critical</span>
+                        <span class="bounty-amount">$2,000</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p2-badge">P2</span> High</span>
+                        <span class="bounty-amount">$1,500</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p3-badge">P3</span> Medium</span>
+                        <span class="bounty-amount">$800</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p4-badge">P4</span> Low</span>
+                        <span class="bounty-amount">$400</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p5-badge">P5</span> Informational</span>
+                        <span class="bounty-amount">$50</span>
+                    </div>
+                </div>
+
+                <!-- Tier 3 - Gold / Orange Glow (unchanged) -->
+                <div class="tier-card tier-3">
+                    <div class="tier-header">
+                        <div class="tier-name" style="color: #FFB347;">Tier 3</div>
+                        <div class="tier-range">💰 $500 – $5,000</div>
+                        <div style="font-size: 0.7rem; margin-top: 5px; background: rgba(255,180,71,0.15); display: inline-block; padding: 2px 10px; border-radius: 30px;">🟠 Elite / VIP</div>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p1-badge">P1</span> Critical</span>
+                        <span class="bounty-amount">$5,000</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p2-badge">P2</span> High</span>
+                        <span class="bounty-amount">$4,000</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p3-badge">P3</span> Medium</span>
+                        <span class="bounty-amount">$2,500</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p4-badge">P4</span> Low</span>
+                        <span class="bounty-amount">$800</span>
+                    </div>
+                    <div class="bounty-row">
+                        <span class="bounty-severity"><span class="priority-badge p5-badge">P5</span> Informational</span>
+                        <span class="bounty-amount">$100</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional context note -->
+            <div class="note-box">
+                <i class="fas fa-info-circle" style="color: #2A7DE1; margin-right: 10px;"></i>
+                <strong>Program Notes:</strong> All bounties are paid in USD / crypto (USDC) upon validation. Duplicate reports follow standard disclosure policy. 
+                Tier selection depends on scope & criticality of target. The Ezekiel team reserves the right to adjust rewards based on exploit complexity. 
+                Hall of Fame recognition for all validated P5 submissions in Tier 1.
+            </div>
+
+            <!-- Payment Processing note inline with theme -->
+            <div style="margin: 2rem 0; text-align: center; padding: 1rem; background: #0E1120; border-radius: 32px;">
+                <i class="fas fa-credit-card" style="color: #2A7DE1;"></i> 
+                <span style="color: #8E9AAF;">Fast payouts via crypto / wire transfer | 30-day average payment time | Private program invitations by request</span>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2026 Ezekiel — Private Bug Bounty Program. Transparent, fair, and researcher-first.</p>
+            <p style="margin-top: 0.5rem;"><i class="fas fa-shield-haltered"></i> Submit vulnerabilities via encrypted channel | bbp@ezekielsec.com</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar scroll effect + mobile toggle (ensuring compatibility)
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(10, 12, 18, 0.96)';
+                navbar.style.backdropFilter = 'blur(16px)';
+            } else {
+                navbar.style.background = 'rgba(10, 12, 18, 0.85)';
+            }
+        });
+        // optional mobile menu (if we ever add hamburger on this page, but not needed now)
+        const mobileBtn = document.getElementById('mobile-menu');
+        const navLinks = document.getElementById('nav-links');
+        if (mobileBtn && navLinks) {
+            mobileBtn.addEventListener('click', () => navLinks.classList.toggle('active'));
+        }
+        // smooth scroll for any anchor
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === "#" || targetId === "") return;
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
