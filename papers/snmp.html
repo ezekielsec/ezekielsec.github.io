@@ -4,109 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Ezekiel Labs | SNMP Pentesting Research Paper</title>
-    <!-- Google Fonts + Font Awesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Import external EzekielSec white theme CSS -->
+    <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Additional styles to adapt SNMP research paper to white theme while preserving all research data -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0A0C12;
-            color: #EFF3FC;
-            line-height: 1.5;
-            scroll-behavior: smooth;
-            overflow-x: hidden;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #141824;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2A7DE1;
-            border-radius: 10px;
-        }
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Navbar */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(10, 12, 18, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(42, 125, 225, 0.2);
-            z-index: 1000;
-            transition: 0.3s;
-        }
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            padding: 1rem 0;
-        }
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #FFFFFF 0%, #2A7DE1 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .logo span {
-            color: #2A7DE1;
-            background: none;
-        }
-        .back-link {
-            color: #EFF3FC;
-            text-decoration: none;
-            font-weight: 500;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(42,125,225,0.12);
-            padding: 0.5rem 1.2rem;
-            border-radius: 40px;
-            border: 1px solid rgba(42,125,225,0.3);
-        }
-        .back-link:hover {
-            background: rgba(42,125,225,0.25);
-            color: #2A7DE1;
-            border-color: #2A7DE1;
-        }
-
-        /* Research Hero */
+        /* Research page specific overrides - maintains white theme compatibility */
         .research-hero {
             margin-top: 100px;
             padding: 60px 0 40px 0;
             position: relative;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid var(--border);
         }
         .research-badge {
-            background: rgba(42,125,225,0.15);
+            background: var(--accent-light);
             backdrop-filter: blur(4px);
             padding: 0.3rem 1rem;
             border-radius: 30px;
             font-size: 0.8rem;
             width: fit-content;
             margin-bottom: 1.5rem;
-            border-left: 3px solid #2A7DE1;
+            border-left: 3px solid var(--accent);
             font-weight: 500;
+            color: var(--accent);
         }
         .research-hero h1 {
             font-size: 3.2rem;
@@ -114,9 +34,10 @@
             line-height: 1.2;
             margin-bottom: 1rem;
             letter-spacing: -0.02em;
+            color: var(--heading);
         }
         .gradient-text {
-            background: linear-gradient(120deg, #FFFFFF, #2A7DE1);
+            background: linear-gradient(120deg, var(--heading), var(--accent));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -126,28 +47,27 @@
             flex-wrap: wrap;
             gap: 2rem;
             margin: 1.5rem 0 0.5rem;
-            color: #8E9AAF;
+            color: var(--muted);
             font-size: 0.9rem;
         }
         .research-meta i {
-            color: #2A7DE1;
+            color: var(--accent);
             margin-right: 6px;
         }
 
-        /* Main Research Card */
+        /* Research Paper Box - using theme card styling */
         .research-paper-box {
-            background: #11131C;
-            border-radius: 32px;
-            border: 1px solid #202433;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             padding: 2.5rem;
             margin: 2rem 0 3rem;
-            backdrop-filter: blur(4px);
-            transition: 0.2s;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.4);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
         }
         .research-paper-box:hover {
-            border-color: #2A7DE1;
-            box-shadow: 0 25px 40px -14px rgba(42,125,225,0.15);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
         }
         .section-title-sm {
             font-size: 1.6rem;
@@ -156,11 +76,15 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            border-left: 4px solid #2A7DE1;
+            border-left: 4px solid var(--accent);
             padding-left: 1rem;
+            color: var(--heading);
+        }
+        .section-title-sm i {
+            color: var(--accent);
         }
         .paper-content {
-            color: #C8D2E9;
+            color: var(--body);
             font-size: 1rem;
             line-height: 1.65;
         }
@@ -168,18 +92,26 @@
             margin-bottom: 1.2rem;
         }
         .paper-content strong {
-            color: #2A7DE1;
+            color: var(--accent);
+        }
+        .paper-content a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .paper-content a:hover {
+            color: var(--accent-dark);
+            text-decoration: underline;
         }
         .code-block {
-            background: #0A0C12;
-            border-radius: 20px;
+            background: var(--heading);
+            border-radius: var(--radius);
             padding: 1.2rem;
-            font-family: 'Monaco', 'Menlo', monospace;
+            font-family: var(--mono);
             font-size: 0.85rem;
-            border-left: 3px solid #2A7DE1;
+            border-left: 3px solid var(--accent);
             margin: 1.5rem 0;
             overflow-x: auto;
-            color: #B0C4FF;
+            color: #A8C7FA;
         }
         .info-grid {
             display: flex;
@@ -188,23 +120,24 @@
             margin: 2rem 0 1rem;
         }
         .info-chip {
-            background: #1A1E2C;
+            background: var(--light);
             padding: 0.4rem 1.2rem;
             border-radius: 40px;
             font-size: 0.8rem;
             font-weight: 500;
-            border: 0.5px solid #2A7DE1;
+            border: 0.5px solid var(--accent);
+            color: var(--heading);
         }
         hr {
-            border-color: #202433;
+            border-color: var(--border);
             margin: 1.5rem 0;
         }
         .stats-highlight {
-            background: linear-gradient(95deg, #0F1420, #0A0C12);
-            border-radius: 24px;
+            background: linear-gradient(95deg, var(--off-white), var(--white));
+            border-radius: var(--radius-lg);
             padding: 1.5rem;
             margin: 1.5rem 0;
-            border: 1px solid #2A7DE1;
+            border: 1px solid var(--accent);
         }
         .stats-grid {
             display: flex;
@@ -216,22 +149,34 @@
         .stat-number {
             font-size: 2.5rem;
             font-weight: 800;
-            color: #2A7DE1;
+            color: var(--accent);
         }
         .vulnerable-badge {
-            background: rgba(220, 53, 69, 0.15);
-            border-left: 3px solid #dc3545;
+            background: var(--red-light);
+            border-left: 3px solid var(--red);
             padding: 1rem;
-            border-radius: 16px;
+            border-radius: var(--radius);
             margin: 1rem 0;
         }
+        .vulnerable-badge i, .vulnerable-badge strong {
+            color: var(--red);
+        }
+        .vulnerable-badge p {
+            color: var(--body);
+        }
         footer {
-            background: #06080F;
+            background: var(--heading);
             padding: 2rem 0;
             text-align: center;
-            border-top: 1px solid #1A1E2C;
-            color: #6C7A96;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.55);
             margin-top: 2rem;
+        }
+        footer a {
+            color: rgba(255,255,255,0.55);
+        }
+        footer a:hover {
+            color: white;
         }
         @media (max-width: 760px) {
             .research-hero h1 {
@@ -245,20 +190,106 @@
             }
         }
         .tool-list {
-            background: #0A0C12;
-            border-radius: 20px;
+            background: var(--off-white);
+            border-radius: var(--radius);
             padding: 1rem;
             margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+        .tool-list ul {
+            margin-left: 1.5rem;
+            margin-bottom: 0;
         }
         .tool-list li {
-            margin-left: 1.5rem;
             margin-bottom: 0.5rem;
+            color: var(--body);
+        }
+        ul, ol {
+            margin-left: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        li {
+            margin-bottom: 0.4rem;
+            color: var(--body);
+        }
+        
+        /* Override navbar for white theme */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: box-shadow 0.3s;
+        }
+        .navbar.scrolled {
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 24px;
+        }
+        .logo {
+            font-family: var(--sans);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--heading);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .logo span {
+            color: var(--accent);
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1.3rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: 1.5px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: var(--sans);
+            text-decoration: none;
+            background: transparent;
+            color: var(--accent);
+        }
+        .back-link:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+        
+        @media (max-width: 860px) {
+            .container { padding: 0 20px; }
+        }
+        
+        h4 {
+            color: var(--accent);
+            margin: 1rem 0 0.5rem;
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <div class="logo">EZEKIEL<span>//</span>SEC</div>
             <a href="../index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Main</a>
@@ -270,7 +301,7 @@
             <div class="research-hero">
                 <div class="research-badge"><i class="fas fa-flask"></i> Ezekiel Research Division | SNMP Deep-Dive</div>
                 <h1>Pentesting SNMP: <span class="gradient-text">From Recon to Network Takeover</span></h1>
-                <p style="font-size: 1.2rem; max-width: 780px; color: #B8C5E0;">Comprehensive analysis of SNMP (161,162,10161,10162/udp) vulnerabilities, OID enumeration, and real-world enterprise exploitation statistics.</p>
+                <p style="font-size: 1.2rem; max-width: 780px; color: var(--muted);">Comprehensive analysis of SNMP (161,162,10161,10162/udp) vulnerabilities, OID enumeration, and real-world enterprise exploitation statistics.</p>
                 <div class="research-meta">
                     <span><i class="fas fa-calendar-alt"></i> Published: April 2026</span>
                     <span><i class="fas fa-tag"></i> Category: Network Pentesting / SNMP</span>
@@ -281,7 +312,7 @@
             <div class="research-paper-box">
                 <!-- Executive Summary / Intro -->
                 <div class="section-title-sm">
-                    <i class="fas fa-microchip" style="color:#2A7DE1;"></i> 
+                    <i class="fas fa-microchip"></i> 
                     Executive Summary & SNMP Basics
                 </div>
                 <div class="paper-content">
@@ -305,14 +336,14 @@
                 </div>
                 <div class="paper-content">
                     <p>The <strong>Management Information Base (MIB)</strong> stores hierarchical device data. Each object is identified by an <strong>Object Identifier (OID)</strong> — e.g., <code>1.3.6.1.2.1.1.1.0</code> (sysDescr). Critical OIDs for pentesters include:</p>
-                    <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                    <ul>
                         <li><strong>1.3.6.1.2.1.1.1.0</strong> – System description (OS, hardware)</li>
                         <li><strong>1.3.6.1.2.1.25.4.2.1.2</strong> – Running processes (may contain passwords)</li>
                         <li><strong>1.3.6.1.4.1.77.1.2.25</strong> – Windows user accounts</li>
                         <li><strong>1.3.6.1.2.1.6.13.1.3</strong> – TCP local ports</li>
                         <li><strong>1.3.6.1.4.1.9.9.13.1</strong> – Cisco specific configs</li>
                     </ul>
-                    <p>Tools like <code>snmpwalk</code>, <code>snmpbulkwalk</code>, and <code>braa</code> enable mass enumeration. OID tree navigation is available at <a href="http://www.oid-info.com" style="color:#2A7DE1;">oid-info.com</a>.</p>
+                    <p>Tools like <code>snmpwalk</code>, <code>snmpbulkwalk</code>, and <code>braa</code> enable mass enumeration. OID tree navigation is available at <a href="http://www.oid-info.com">oid-info.com</a>.</p>
                 </div>
 
                 <hr>
@@ -333,21 +364,21 @@
                         </div>
                     </div>
 
-                    <h4 style="color:#2A7DE1; margin: 1rem 0 0.5rem;"><i class="fas fa-university"></i> Harvard University (.edu infrastructure)</h4>
+                    <h4><i class="fas fa-university"></i> Harvard University (.edu infrastructure)</h4>
                     <p>From a sample of <strong>1,000 devices</strong> (routers, switches, printers, IoT sensors) we discovered:</p>
-                    <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                    <ul>
                         <li><strong>4 vulnerable devices (0.5%)</strong> with default/guessable community strings</li>
                         <li><strong>2 devices granting READ + WRITE permissions</strong> (private community string exposed)</li>
                         <li>Writable OIDs allowed configuration changes — potential for <strong>DNS redirection, VLAN hopping</strong></li>
                         <li>Extracted SNMP trap logs contained internal IP schemes and usernames</li>
                     </ul>
                     <div class="vulnerable-badge">
-                        <i class="fas fa-exclamation-triangle" style="color:#dc3545;"></i> <strong>Critical Finding:</strong> The two writable devices were core network switches. With write access, an attacker could alter spanning-tree parameters, enable port mirroring, or inject rogue ACLs — effectively compromising the entire campus network segment.
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Critical Finding:</strong> The two writable devices were core network switches. With write access, an attacker could alter spanning-tree parameters, enable port mirroring, or inject rogue ACLs — effectively compromising the entire campus network segment.
                     </div>
 
-                    <h4 style="color:#2A7DE1; margin: 1.5rem 0 0.5rem;"><i class="fas fa-cloud"></i> Dropbox.com Infrastructure</h4>
+                    <h4><i class="fas fa-cloud"></i> Dropbox.com Infrastructure</h4>
                     <p>Shodan + targeted SNMP scanning revealed <strong>7 vulnerable devices out of 1,000</strong> (0.7%):</p>
-                    <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                    <ul>
                         <li><strong>7 devices with read access</strong> (public or weak community strings)</li>
                         <li><strong>1 device with full read/write privileges</strong> (private community string leaked)</li>
                         <li>SNMP enumeration exposed running processes, including backup scripts with embedded credentials</li>
@@ -372,15 +403,15 @@
                 <div class="paper-content">
                     <p>Our research confirms that SNMP misconfigurations are <strong>not isolated</strong> — they represent a systemic risk. In both Harvard and Dropbox environments, the vulnerable devices were not end-user workstations but <strong>core infrastructure components</strong> (switches, load balancers, storage arrays).</p>
                     <p><strong>Attack Chain demonstrated:</strong></p>
-                    <ol style="margin-left: 1.8rem; margin-bottom: 1rem;">
+                    <ol>
                         <li>Shodan/onesixtyone discovers SNMP with <code>public</code> or <code>private</code> community string.</li>
                         <li>snmpwalk extracts system info, network neighbors, routing tables, and SNMP trap destinations.</li>
                         <li>Write access (private string) used to modify SNMP settings — enabling <strong>remote command execution via extensible SNMP agents</strong> (NET-SNMP-EXTEND-MIB).</li>
                         <li>Attacker pivots to internal network using extracted credentials from process lists.</li>
                     </ol>
-                    <div class="stats-highlight" style="border-color:#dc3545;">
-                        <p style="font-weight: 700;"><i class="fas fa-skull-crosswalk"></i> Infrastructure-wide infiltration risk:</p>
-                        <p>In both tested organizations, <strong>writable SNMP access on a single network core device</strong> would allow an adversary to:<br>
+                    <div class="stats-highlight" style="border-color: var(--red);">
+                        <p style="font-weight: 700; color: var(--heading);"><i class="fas fa-skull-crosswalk"></i> Infrastructure-wide infiltration risk:</p>
+                        <p style="color: var(--body);">In both tested organizations, <strong>writable SNMP access on a single network core device</strong> would allow an adversary to:<br>
                         - Modify ARP tables (MITM entire subnet)<br>
                         - Disable SNMP logging (erase forensic evidence)<br>
                         - Execute arbitrary OS commands via <code>nsExtendObjects</code> (RCE)<br>
@@ -393,6 +424,7 @@
                 <!-- SNMP Attack Tools & Commands -->
                 <div class="section-title-sm">
                     <i class="fas fa-terminal"></i> 
+                    Essential SNMP Pentesting Toolkit
                 </div>
                 <div class="paper-content">
                     <p><strong>Essential SNMP Pentesting Toolkit:</strong></p>
@@ -423,7 +455,7 @@
                 </div>
                 <div class="paper-content">
                     <p>Based on the discovered vulnerabilities across major enterprises, we recommend the following:</p>
-                    <ol style="margin-left: 1.8rem; margin-bottom: 1rem;">
+                    <ol>
                         <li><strong>Immediately upgrade to SNMPv3</strong> with authentication (SHA) and encryption (AES). Avoid community strings entirely.</li>
                         <li>Apply strict ACLs limiting SNMP access to trusted management stations only.</li>
                         <li>Disable writable SNMP (read-only) unless absolutely necessary. Use separate read/write community strings with high entropy.</li>
@@ -475,7 +507,7 @@
             </div>
 
             <div style="text-align: center; margin-bottom: 3rem;">
-                <p style="color: #5F6F8A; font-size: 0.85rem;"><i class="fas fa-flask"></i> Full SNMP research dataset and OID extraction logs available to verified security researchers. Contact research@ezekielsec.com.</p>
+                <p style="color: var(--muted); font-size: 0.85rem;"><i class="fas fa-flask"></i> Full SNMP research dataset and OID extraction logs available to verified security researchers. Contact research@ezekielsec.com.</p>
             </div>
         </div>
     </main>
@@ -489,12 +521,9 @@
 
     <script>
         window.addEventListener('scroll', () => {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 30) {
-                navbar.style.background = 'rgba(10, 12, 18, 0.96)';
-                navbar.style.backdropFilter = 'blur(16px)';
-            } else {
-                navbar.style.background = 'rgba(10, 12, 18, 0.85)';
+            const navbar = document.getElementById('navbar');
+            if (navbar) {
+                navbar.classList.toggle('scrolled', window.scrollY > 10);
             }
         });
     </script>

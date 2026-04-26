@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Primary Works Directory | EZEKIELSEC Research Archive</title>
+    <!-- Import external EzekielSec white theme CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Additional minimal overrides to keep original layout intent but using white theme aesthetics -->
+    <style>
+        /* Additional styles to preserve the original card design and glowing entity bars 
+           while staying consistent with the white theme (overrides dark mode) */
+        
+        /* Directory section specific adjustments for white theme */
+        .directory-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 0 80px;
+            background: var(--white);
+        }
+        
+        .directory-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .directory-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--heading);
+            margin-bottom: 1rem;
+        }
+        
+        .directory-sub {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Research cards grid - using white theme card styling with enhancements */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .explore-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem 1.8rem;
+            transition: all 0.25s ease;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .explore-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .explore-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.2rem;
+        }
+        
+        .explore-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+            color: var(--heading);
+        }
+        
+        .explore-card p {
+            color: var(--body);
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .skill-tag {
+            background: var(--light);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-left: 2px solid var(--accent);
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--heading);
+        }
+        
+        .card-meta {
+            color: var(--muted);
+            font-size: 0.8rem;
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .severity-badge {
+            background: var(--accent-light);
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Glowing entity bar (blue glowing circled) - adapted for white theme */
+        .entity-bar {
+            margin-top: 1.8rem;
+            padding: 0.9rem 1rem;
+            background: var(--accent-light);
+            border-radius: 60px;
+            border: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: all 0.2s ease;
+        }
+        
+        .entity-bar:hover {
+            background: var(--accent-mid);
+            border-color: var(--accent-dark);
+            box-shadow: 0 0 12px rgba(26, 86, 214, 0.3);
+        }
+        
+        .entity-icon {
+            font-size: 1.3rem;
+        }
+        
+        .entity-text {
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            color: var(--accent);
+        }
+        
+        .entity-glow-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px var(--accent);
+            animation: pulseGlow 1.5s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0% { opacity: 0.4; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+        
+        .entity-wrapper {
+            margin-top: auto;
+        }
+        
+        /* Simple footer - white theme style */
+        .simple-footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            background: var(--white);
+        }
+        
+        /* Navbar override for white theme consistency */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: box-shadow 0.3s;
+        }
+        
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 24px;
+        }
+        
+        .logo {
+            font-family: var(--sans);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--heading);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1.3rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: 1.5px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: var(--sans);
+            text-decoration: none;
+            background: transparent;
+            color: var(--accent);
+        }
+        
+        .btn-home:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+        
+        /* responsive */
+        @media (max-width: 768px) {
+            .directory-title { font-size: 2rem; }
+            .explore-grid { grid-template-columns: 1fr; }
+            .nav-container { flex-direction: row; padding: 0.8rem 20px; }
+            .directory-section { padding: 100px 0 60px; }
+            .entity-text { font-size: 0.75rem; }
+            .entity-bar { padding: 0.7rem 0.8rem; }
+            .container { padding: 0 20px; }
+        }
+        
+        /* container override to match parent theme */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+        
+        @media (max-width: 860px) {
+            .container { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- MINIMAL NAVBAR: only logo + back to home button (using white theme) -->
+<nav class="navbar" id="navbar">
+    <div class="nav-container">
+        <div class="logo">EZEKIEL<span>//SEC</span></div>
+        <a href="index.html" class="btn-home">← Back to Home</a>
+    </div>
+</nav>
+
+<!-- MAIN DIRECTORY PAGE: TITLE + 3 CARDS + GLOW ENTITY BARS -->
+<main>
+    <section class="directory-section">
+        <div class="container">
+            <div class="directory-header">
+                <h1 class="directory-title">📁 Primary Works Directory</h1>
+                <p class="directory-sub">Curated offensive security research — zero-days, cloud exploitation & advanced attack chains. Click any card to view the full work.</p>
+            </div>
+
+            <!-- THREE RESEARCH CARDS (clickable) + custom entity bars (glowing) -->
+            <div class="explore-grid">
+                <!-- CARD 1: Container Breakout Research -->
+                <a href="works/apache.html" class="explore-card">
+                    <div class="explore-icon"></div>
+                    <h3>Ministry Of Education - SSRF</h3>
+                    <p>SSRF attack against Singapore's MOE Apache Tomcat. Abusing default credentials to scan internal networks, leak cloud metadata, and fully compromise the environment.</p>
+                    <div>
+                        <span class="skill-tag">Container Escape</span>
+                        <span class="skill-tag">PrivEsc</span>
+                        <span class="skill-tag">EKS</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📅 Jan 2025</span>
+                        <span class="severity-badge">CVSS 8.6</span>
+                    </div>
+                    <!-- Blue glowing text bar: Ministry of Education -->
+                    <div class="entity-bar">
+                        <span class="entity-icon">⚖️</span>
+                        <span class="entity-text">Ministry Of Education - singapore</span>
+                        <span class="entity-glow-dot"></span>
+                    </div>
+                </a>
+
+                <!-- CARD 2: IMDSv2 & SSRF Chain - Bank of Korea -->
+                <a href="works/bank.html" class="explore-card">
+                    <div class="explore-icon"></div>
+                    <h3>IMDSv2 Bypass: SSRF to IAM Takeover</h3>
+                    <p>Advanced metadata exfiltration from Lambda & EC2 via blind SSRF. Breaking IMDSv2 protections, token replay, and abusing misconfigured proxies.</p>
+                    <div>
+                        <span class="skill-tag">AWS</span>
+                        <span class="skill-tag">SSRF</span>
+                        <span class="skill-tag">IMDSv2</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📅 Mar 2025</span>
+                        <span class="severity-badge">CVSS 9.0</span>
+                    </div>
+                    <!-- Blue glowing text bar: Bank of Korea -->
+                    <div class="entity-bar">
+                        <span class="entity-icon">🏦</span>
+                        <span class="entity-text">Bank of Korea — Financial Infrastructure Risk</span>
+                        <span class="entity-glow-dot"></span>
+                    </div>
+                </a>
+
+                <!-- CARD 3: React2Shell (CVE-2025-55182) - Finance Ministry -->
+                <a href="works/aws.html" class="explore-card">
+                    <div class="explore-icon"></div>
+                    <h3>React2Shell: Next.js RCE (CVE-2025-55182)</h3>
+                    <p>Unsafe deserialization in React Server Components leads to unauthenticated root RCE. 10+ AWS EC2 instances compromised. Full exploit chain and cloud pivot analysis.</p>
+                    <div>
+                        <span class="skill-tag">RCE</span>
+                        <span class="skill-tag">Critical</span>
+                        <span class="skill-tag">Next.js</span>
+                    </div>
+                    <div class="card-meta">
+                        <span>📅 Dec 2025</span>
+                        <span class="severity-badge">CVSS 9.8</span>
+                    </div>
+                    <!-- Blue glowing text bar: Amazon Web Services -->
+                    <div class="entity-bar">
+                        <span class="entity-icon">☁️</span>
+                        <span class="entity-text">Amazon Web Services — Cloud Compromise Chain</span>
+                        <span class="entity-glow-dot"></span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- subtle note: placeholders ready for linking -->
+            <p style="text-align: center; margin-top: 2.5rem; font-size: 0.8rem; color: var(--muted);">
+                ※ Each card is a placeholder link — replace href with actual work page URL when available.
+            </p>
+        </div>
+    </section>
+</main>
+
+<footer class="simple-footer">
+    <p>© 2025 Offsec Primary Works Directory — Research Archive</p>
+</footer>
+
+<!-- Simple scroll effect for navbar if needed (matches theme) -->
+<script>
+    // Optional: add shadow on scroll for navbar consistency
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (navbar) {
+            if (window.scrollY > 10) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        }
+    });
+</script>
+</body>
+</html>

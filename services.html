@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offsec Services — EzekielSec</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    .page-hero {
+      background: var(--off-white);
+      padding: 120px 0 64px;
+      border-bottom: 1px solid var(--border);
+    }
+    .breadcrumb { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+    .breadcrumb a { color: var(--accent); }
+
+    .services-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .one-col { display: grid; grid-template-columns: 1fr; gap: 1.25rem; }
+
+    .svc-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .svc-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); transform: translateY(-3px); }
+    .svc-card.featured { border-color: var(--accent); }
+    .svc-card.featured::before { content:'Most Popular'; position:absolute; top:1rem; right:1rem; background:var(--accent); color:white; font-size:0.65rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:20px; letter-spacing:0.06em; }
+
+    .svc-tier { font-family: var(--mono); font-size: 0.68rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .svc-title { font-size: 1.05rem; font-weight: 700; color: var(--heading); margin-bottom: 0.25rem; }
+    .svc-price { font-size: 1.9rem; font-weight: 800; color: var(--heading); letter-spacing: -0.04em; margin: 0.6rem 0 0.2rem; }
+    .svc-dur { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .svc-features { list-style: none; flex: 1; }
+    .svc-features li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.84rem; color: var(--body); padding: 0.35rem 0; }
+    .svc-features i { color: var(--accent); font-size: 0.68rem; margin-top: 5px; flex-shrink: 0; }
+
+    .svc-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; background: var(--accent-light); color: var(--accent); border: 1px solid rgba(26,86,214,0.2); border-radius: 20px; padding: 0.2rem 0.7rem; margin-bottom: 0.75rem; }
+    .price-range { font-size: 1.4rem; font-weight: 800; color: var(--heading); letter-spacing: -0.03em; margin: 0.5rem 0; }
+    .price-day { font-size: 1.2rem; font-weight: 800; color: var(--heading); margin: 0.5rem 0 0.25rem; }
+    .svc-note { font-size: 0.75rem; color: var(--muted); margin-top: 0.35rem; }
+
+    .explore-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-top: 1rem;
+      padding: 0.4rem 0;
+      transition: 0.15s;
+    }
+    .explore-btn:hover { gap: 10px; }
+
+    .section-divider { margin: 3rem 0; border-top: 1px solid var(--border); }
+
+    .cta-block { background: var(--heading); border-radius: var(--radius-xl); padding: 3rem; text-align: center; }
+    .cta-block h2 { color: white; margin-bottom: 0.75rem; }
+    .cta-block p { color: rgba(255,255,255,0.6); max-width:500px; margin: 0 auto 1.75rem; }
+
+    @media (max-width: 1024px) { .services-grid-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) { .services-grid-4, .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">EZEKIEL<span class="slash">//</span>SEC</a>
+    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Main</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a> / Services</div>
+    <div class="section-label"><i class="fas fa-shield-halved"></i> Offensive Security</div>
+    <h1>Offsec <span class="accent">Services</span></h1>
+    <p class="section-sub" style="margin-top:0.75rem;">Comprehensive penetration testing, red team operations, and specialized security assessments tailored to modern threat landscapes.</p>
+  </div>
+</div>
+
+<main style="padding: 0 0 4rem;">
+  <div class="container">
+
+    <!-- STANDARD SERVICES -->
+    <section style="border:none; padding: 3rem 0 2rem;">
+      <div class="section-label"><i class="fas fa-layer-group"></i> Standard Tiers</div>
+      <h2 class="section-title">Standard Services</h2>
+      <p class="section-sub">Fixed-price engagements with clear deliverables. All include signed NDA & ROE.</p>
+      <div class="services-grid-4" style="margin-top:2rem;">
+        <div class="svc-card">
+          <div class="svc-tier">Tier 1</div>
+          <div class="svc-title">Basic Assessment</div>
+          <div class="svc-price">$500</div>
+          <div class="svc-dur"><i class="far fa-clock"></i> 2 days engagement</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Basic recon & footprinting</li>
+            <li><i class="fas fa-check"></i> Network analysis (limited scope)</li>
+            <li><i class="fas fa-check"></i> Common vulnerability analysis (OWASP, known CVEs)</li>
+          </ul>
+        </div>
+        <div class="svc-card">
+          <div class="svc-tier">Tier 2</div>
+          <div class="svc-title">Standard Assessment</div>
+          <div class="svc-price">$1,500</div>
+          <div class="svc-dur"><i class="far fa-clock"></i> 6 days engagement</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Advanced recon (OSINT, subdomain enumeration)</li>
+            <li><i class="fas fa-check"></i> All device + subdomain network analysis</li>
+            <li><i class="fas fa-check"></i> Full device + subdomain common vulnerability analysis</li>
+          </ul>
+        </div>
+        <div class="svc-card featured">
+          <div class="svc-tier">Tier 3</div>
+          <div class="svc-title">Deep Assessment</div>
+          <div class="svc-price">$3,000</div>
+          <div class="svc-dur"><i class="far fa-clock"></i> 12 days engagement</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Advanced recon + all subdomain analysis</li>
+            <li><i class="fas fa-check"></i> Infrastructure vulnerability analysis</li>
+            <li><i class="fas fa-check"></i> Advanced JavaScript review & serialization checks</li>
+            <li><i class="fas fa-check"></i> Advanced tech stack fingerprinting</li>
+          </ul>
+        </div>
+        <div class="svc-card">
+          <div class="svc-tier">Tier 4</div>
+          <div class="svc-title">Full Red Team</div>
+          <div class="svc-price">$6,000</div>
+          <div class="svc-dur"><i class="far fa-clock"></i> 24 days full red team op</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Full red team operation on target infrastructure</li>
+            <li><i class="fas fa-check"></i> Device / API / Network full pentesting</li>
+            <li><i class="fas fa-check"></i> All domain+subdomain CVE & vulnerability analysis</li>
+            <li><i class="fas fa-check"></i> Advanced plugin / framework analysis</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- SPECIALIZED PENTESTING -->
+    <section style="border:none; padding:2rem 0;">
+      <div class="section-label"><i class="fas fa-crosshairs"></i> Specialized</div>
+      <h2 class="section-title">Specialized Penetration Testing</h2>
+      <div class="two-col" style="margin-top:2rem;">
+        <div class="svc-card">
+          <div class="svc-tag"><i class="fas fa-code"></i> API Security</div>
+          <div class="svc-title">API Hacking</div>
+          <div class="price-range">$300 – $2,000</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-bug"></i> Broken Object Level Authorization (BOLA)</li>
+            <li><i class="fas fa-bug"></i> Broken Function Level Authorization (BFLA)</li>
+            <li><i class="fas fa-bug"></i> Unrestricted Access to Sensitive Business Flows</li>
+            <li><i class="fas fa-bug"></i> Improper Inventory Management</li>
+            <li><i class="fas fa-bug"></i> Security Misconfiguration</li>
+          </ul>
+          <a href="#contact" class="explore-btn">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="svc-card">
+          <div class="svc-tag"><i class="fas fa-robot"></i> AI Security</div>
+          <div class="svc-title">AI LLM Pentesting</div>
+          <div class="price-range">$250 – $2,500</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-bug"></i> Prompt Injection Attacks</li>
+            <li><i class="fas fa-bug"></i> Data & Model Poisoning</li>
+            <li><i class="fas fa-bug"></i> Excessive Agency</li>
+            <li><i class="fas fa-bug"></i> AI Supply Chain Attacks</li>
+            <li><i class="fas fa-bug"></i> Model Skewing</li>
+            <li><i class="fas fa-bug"></i> Model Theft & Inversion</li>
+          </ul>
+          <a href="#contact" class="explore-btn">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- SPECIALIZED SERVICES -->
+    <section style="border:none; padding:2rem 0;">
+      <div class="section-label"><i class="fas fa-chart-line"></i> Monitoring</div>
+      <h2 class="section-title">Specialized Services</h2>
+      <div class="two-col" style="margin-top:2rem;">
+        <div class="svc-card">
+          <div class="svc-title">Infra Level Security</div>
+          <div class="price-day">$10/day – $300/month</div>
+          <div class="svc-note" style="margin-bottom:1rem;"><i class="fas fa-chart-line"></i> Daily monitoring & assessment</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Daily monitoring for tech stack changes</li>
+            <li><i class="fas fa-check"></i> Daily security tests</li>
+            <li><i class="fas fa-check"></i> 1 offsec specialist assigned daily to scoped targets</li>
+            <li><i class="fas fa-check"></i> Can be managed by the client's security team</li>
+          </ul>
+          <a href="#contact" class="explore-btn">Enquire <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="svc-card" style="border-color:var(--accent);">
+          <div class="svc-tag"><i class="fas fa-clock"></i> 24/7 Active</div>
+          <div class="svc-title">Infra 24/7 Monitoring</div>
+          <div class="price-day">$20/day – $600/month</div>
+          <div class="svc-note" style="margin-bottom:1rem;">+ daily infra vuln testing (HRS + misconfigs + posture changes)</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Daily infrastructure vulnerability testing</li>
+            <li><i class="fas fa-check"></i> Misconfigurations + posture changes + subdomain takeovers</li>
+            <li><i class="fas fa-check"></i> New CVEs real-time alerts</li>
+            <li><i class="fas fa-check"></i> For 50 subdomains + main domain</li>
+          </ul>
+          <a href="#contact" class="explore-btn">Get 24/7 <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- BUG BOUNTY -->
+    <section style="border:none; padding:2rem 0;">
+      <div class="section-label"><i class="fas fa-bug"></i> Bug Bounty</div>
+      <h2 class="section-title">Bug Bounty Programs</h2>
+      <div class="two-col" style="margin-top:2rem;">
+        <div class="svc-card">
+          <div class="svc-title">Private BBP</div>
+          <div class="price-range">$100 – $5,000</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-user-secret"></i> 10+ security researchers will be assigned</li>
+            <li><i class="fas fa-handshake"></i> All members will be trusted individuals</li>
+            <li><i class="fas fa-clipboard-list"></i> Triage will be done internally</li>
+            <li><i class="fas fa-gavel"></i> Ezekielsec will have the final validation</li>
+          </ul>
+          <a href="#contact" class="explore-btn">Start Private BBP <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="svc-card">
+          <div class="svc-title">Public BBP</div>
+          <div class="price-range">$100 – $5,000</div>
+          <ul class="svc-features">
+            <li><i class="fas fa-globe"></i> Will be open to the public researchers</li>
+            <li><i class="fas fa-users"></i> Can expect up to 100 researchers</li>
+            <li><i class="fas fa-chart-simple"></i> Triage will be done externally</li>
+            <li><i class="fas fa-building"></i> Company will have the final validation</li>
+          </ul>
+          <a href="#contact" class="explore-btn">Launch Public BBP <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ELITE -->
+    <section style="border:none; padding:2rem 0;">
+      <div class="section-label"><i class="fas fa-star"></i> Enterprise</div>
+      <h2 class="section-title">Infrastructure 24/7 Monitoring (Elite)</h2>
+      <div class="one-col" style="margin-top:2rem;">
+        <div class="svc-card" style="border:2px solid var(--accent); background:var(--off-white);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+            <div>
+              <div class="svc-tag"><i class="fas fa-shield-halved"></i> Enterprise Grade</div>
+              <div class="svc-title" style="font-size:1.3rem;">Elite 24/7 Monitoring</div>
+            </div>
+            <div class="badge badge-blue" style="font-size:0.8rem; padding:0.5rem 1rem;">Contact for Pricing</div>
+          </div>
+          <ul class="svc-features">
+            <li><i class="fas fa-check"></i> Daily security assessment & vulnerability testing</li>
+            <li><i class="fas fa-check"></i> HRS + misconfigs + posture changes + subdomain takeovers</li>
+            <li><i class="fas fa-check"></i> Real-time update on all used tech stacks using Maltego</li>
+            <li><i class="fas fa-check"></i> Real-time update on CVEs & instant remediation guidelines</li>
+          </ul>
+          <a href="#contact" class="explore-btn" style="margin-top:1.5rem;">Request Elite Monitoring <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <p style="text-align:center; margin-top:1.5rem; font-size:0.85rem; color:var(--muted);">*Tailored pricing for enterprise contracts. All services include signed NDA & ROE.</p>
+    </section>
+
+    <!-- CONTACT CTA -->
+    <div id="contact" style="padding:2rem 0 1rem;">
+      <div class="cta-block">
+        <h2>Ready to secure your infrastructure?</h2>
+        <p>Let's discuss which service fits your organization's needs.</p>
+        <a href="https://t.me/Cathedralheather" class="btn btn-white" style="background:white; color:var(--heading); border-radius:10px; padding:0.8rem 2rem; font-weight:700;">Schedule a Confidential Call →</a>
+        <p style="margin-top:1.5rem; font-size:0.8rem; color:rgba(255,255,255,0.4);">📧 contact@ezekielsec.com &nbsp;|&nbsp; 🔒 PGP encrypted available</p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <div class="footer-logo">EZEKIEL<span class="slash">//</span>SEC</div>
+      <p style="margin-top:0.4rem;">© 2026 Ezekiel — Offensive Security. Government-grade penetration testing & private BBP.</p>
+    </div>
+    <p style="font-size:0.8rem;"><i class="fas fa-terminal"></i> Silent. Precise. Relentless.</p>
+  </div>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
+</script>
+</body>
+</html>

