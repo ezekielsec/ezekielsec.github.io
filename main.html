@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Executor - Remote System Command Runner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .system-info {
+            background: #f4f4f4;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .command-input {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #command {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        #command:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .quick-commands {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .quick-cmd {
+            background: #f0f0f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .quick-cmd:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .output-section {
+            background: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .output-header {
+            background: #2d2d2d;
+            padding: 15px;
+            color: white;
+            font-weight: bold;
+            border-bottom: 1px solid #404040;
+        }
+
+        .output-content {
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .stdout {
+            color: #4ec9b0;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .stderr {
+            color: #f48771;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            color: #f48771;
+            background: #2d2d2d;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: #6a9955;
+        }
+
+        .loading {
+            text-align: center;
+            color: #888;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .command-input {
+                flex-direction: column;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💻 Command Executor</h1>
+            <p>Execute system commands on your server remotely</p>
+        </div>
+        
+        <div class="system-info" id="systemInfo">
+            Loading system information...
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="command-input">
+                    <input type="text" id="command" placeholder="Enter your command here... (e.g., ls -la, dir, echo 'Hello World')" />
+                    <button onclick="executeCommand()">Execute 🚀</button>
+                </div>
+                
+                <div class="quick-commands">
+                    <strong>Quick Commands:</strong>
+                    <div class="quick-cmd" onclick="setCommand('ls -la')">📁 ls -la</div>
+                    <div class="quick-cmd" onclick="setCommand('dir')">📁 dir</div>
+                    <div class="quick-cmd" onclick="setCommand('pwd')">📍 pwd</div>
+                    <div class="quick-cmd" onclick="setCommand('echo $PATH || echo %PATH%')">🔧 echo PATH</div>
+                    <div class="quick-cmd" onclick="setCommand('whoami')">👤 whoami</div>
+                    <div class="quick-cmd" onclick="setCommand('date')">📅 date</div>
+                    <div class="quick-cmd" onclick="setCommand('ps aux || tasklist')">📊 ps/tasklist</div>
+                    <div class="quick-cmd" onclick="setCommand('df -h || wmic logicaldisk get size,freespace,caption')">💾 disk usage</div>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <div class="output-header">
+                    Output
+                </div>
+                <div class="output-content" id="output">
+                    <div class="loading">Ready to execute commands...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoint (change if backend is on different port)
+        const API_URL = window.location.origin;
+        
+        // Load system info on page load
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch(`${API_URL}/system-info`);
+                const data = await response.json();
+                document.getElementById('systemInfo').innerHTML = `
+                    💻 Platform: ${data.platform} | 🏗️ Architecture: ${data.arch} | 
+                    🟢 Node.js: ${data.nodeVersion} | ${data.os}
+                `;
+            } catch (error) {
+                document.getElementById('systemInfo').innerHTML = '⚠️ Could not load system information';
+            }
+        }
+        
+        // Execute command
+        async function executeCommand() {
+            const commandInput = document.getElementById('command');
+            const command = commandInput.value.trim();
+            
+            if (!command) {
+                showError('Please enter a command to execute');
+                return;
+            }
+            
+            // Show loading state
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Executing command...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/exec?cmd=${encodeURIComponent(command)}`);
+                const data = await response.json();
+                
+                displayOutput(data);
+            } catch (error) {
+                showError(`Failed to execute command: ${error.message}`);
+            }
+        }
+        
+        // Display command output
+        function displayOutput(data) {
+            const outputDiv = document.getElementById('output');
+            let html = '';
+            
+            // Command info
+            html += `<div class="success">✅ Command: ${escapeHtml(data.command)}</div>`;
+            
+            // stdout
+            if (data.stdout) {
+                html += `<div class="stdout">📤 STDOUT:\n${escapeHtml(data.stdout)}</div>`;
+            }
+            
+            // stderr
+            if (data.stderr) {
+                html += `<div class="stderr">⚠️ STDERR:\n${escapeHtml(data.stderr)}</div>`;
+            }
+            
+            // error
+            if (data.error) {
+                html += `<div class="error">❌ Error: ${escapeHtml(data.error)}</div>`;
+            }
+            
+            // Success message if no output
+            if (!data.stdout && !data.stderr && !data.error) {
+                html += `<div class="success">✅ Command executed successfully (no output)</div>`;
+            }
+            
+            outputDiv.innerHTML = html;
+        }
+        
+        // Show error message
+        function showError(message) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = `<div class="error">❌ ${escapeHtml(message)}</div>`;
+        }
+        
+        // Set command in input field
+        function setCommand(command) {
+            document.getElementById('command').value = command;
+            // Optionally auto-execute
+            // executeCommand();
+        }
+        
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Allow Enter key to execute command
+        document.getElementById('command').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeCommand();
+            }
+        });
+        
+        // Load system info on startup
+        loadSystemInfo();
+        
+        // Auto-focus command input
+        document.getElementById('command').focus();
+    </script>
+</body>
+</html>
