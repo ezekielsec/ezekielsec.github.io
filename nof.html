@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infra · hex control</title>
+    <style>
+        /* ── reset & base ─────────────────────────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #e8e8e8;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            user-select: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* ── viewport ──────────────────────────────────── */
+        #viewport {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── top bar ───────────────────────────────────── */
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            flex-shrink: 0;
+            background: #0d0d0d;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        #view-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        #view-controls .view-btn {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #666;
+            padding: 5px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+            font-family: inherit;
+        }
+
+        #view-controls .view-btn:hover {
+            border-color: #444;
+            color: #aaa;
+        }
+
+        #view-controls .view-btn.active {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        #top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #top-actions .action-btn {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #888;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+        }
+
+        #top-actions .action-btn:hover {
+            border-color: #555;
+            color: #ccc;
+        }
+
+        #domain-count-badge {
+            font-size: 12px;
+            color: #555;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            margin-right: 4px;
+        }
+
+        /* ── hex grid container ────────────────────────── */
+        #hex-grid {
+            flex: 1;
+            overflow: auto;
+            padding: 16px 24px;
+            position: relative;
+        }
+
+        #hex-grid .empty-state {
+            color: #333;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            text-align: center;
+            line-height: 1.7;
+            margin-top: 80px;
+        }
+        #hex-grid .empty-state .big {
+            font-size: 42px;
+            display: block;
+            margin-bottom: 14px;
+            opacity: 0.3;
+        }
+
+        /* ── base view (vertical columns) ──────────────── */
+        #hex-grid .base-layout {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 14px 28px;
+            height: 100%;
+            min-height: 400px;
+            justify-content: flex-start;
+            padding: 6px 0;
+        }
+
+        /* ── central view (concentric circles) ─────────── */
+        #hex-grid .central-layout {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+
+        /* ── hex wrapper ───────────────────────────────── */
+        .hex-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .hex-wrapper:hover {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .hex-wrapper:active {
+            transform: scale(0.94);
+        }
+
+        .hex-svg {
+            display: block;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.02));
+            transition: filter 0.3s ease;
+            position: relative;
+        }
+
+        /* ── Silver light effect ───────────────────────── */
+        .hex-svg::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(192, 192, 192, 0.08), transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .hex-wrapper:hover .hex-svg::after {
+            opacity: 1;
+        }
+
+        .hex-svg .hex-glow {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: radial-gradient(circle at var(--x, 30%) var(--y, 30%), 
+                        rgba(192, 192, 192, 0.06) 0%, 
+                        transparent 60%);
+            pointer-events: none;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+
+        .hex-wrapper:hover .hex-svg .hex-glow {
+            opacity: 1;
+        }
+
+        .hex-svg polygon {
+            transition: stroke 0.2s, stroke-width 0.2s, filter 0.3s;
+        }
+
+        .hex-wrapper:hover .hex-svg polygon {
+            stroke: #c0c0c0;
+            stroke-width: 2.2;
+            filter: drop-shadow(0 0 8px rgba(192, 192, 192, 0.15));
+        }
+
+        /* Subtle silver light on the whole hexagon area */
+        .hex-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, 
+                        rgba(192, 192, 192, 0.03) 0%, 
+                        transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .hex-wrapper:hover::before {
+            opacity: 1;
+        }
+
+        /* Additional silver shimmer - subtle line effect */
+        .hex-svg .shimmer-line {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                        transparent 0%, 
+                        rgba(192, 192, 192, 0.1) 30%, 
+                        rgba(192, 192, 192, 0.2) 50%, 
+                        rgba(192, 192, 192, 0.1) 70%, 
+                        transparent 100%);
+            transform: rotate(-15deg);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .hex-wrapper:hover .hex-svg .shimmer-line {
+            opacity: 1;
+            animation: shimmerMove 1.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmerMove {
+            0% { transform: rotate(-15deg) translateX(-20%); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: rotate(-15deg) translateX(20%); opacity: 0; }
+        }
+
+        /* Subtle silver light on label */
+        .domain-label {
+            color: #b0b0b0;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            margin-top: 6px;
+            text-align: center;
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            transition: color 0.2s, text-shadow 0.3s;
+            text-shadow: 0 0 0px rgba(192, 192, 192, 0);
+        }
+
+        .hex-wrapper:hover .domain-label {
+            color: #d0d0d0;
+            text-shadow: 0 0 12px rgba(192, 192, 192, 0.15);
+        }
+
+        /* ── settings popover (from top-right) ─────────── */
+        #settings-popover {
+            position: fixed;
+            top: 70px;
+            right: 24px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px 22px;
+            width: 240px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+            display: none;
+            z-index: 100;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        #settings-popover.open {
+            display: flex;
+        }
+
+        #settings-popover .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        #settings-popover .setting-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        #settings-popover .zoom-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #settings-popover .zoom-row input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 3px;
+            border-radius: 2px;
+            background: #222;
+            outline: none;
+        }
+
+        #settings-popover .zoom-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            cursor: pointer;
+            border: none;
+        }
+
+        #settings-popover .zoom-row input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            cursor: pointer;
+            border: none;
+        }
+
+        #settings-popover .zoom-row #zoom-label {
+            font-size: 13px;
+            color: #888;
+            min-width: 36px;
+            text-align: right;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        #settings-popover .action-btn-sm {
+            background: transparent;
+            border: 1px solid #2a2a2a;
+            color: #666;
+            padding: 4px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            align-self: flex-start;
+        }
+
+        #settings-popover .action-btn-sm:hover {
+            border-color: #444;
+            color: #aaa;
+        }
+
+        /* ── terminal modal ────────────────────────────── */
+        #terminal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 30px;
+        }
+
+        #terminal-overlay.open {
+            display: flex;
+        }
+
+        #terminal {
+            background: #0c0c0c;
+            border: 1px solid #222;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 780px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+            animation: terminalIn 0.2s ease;
+        }
+
+        @keyframes terminalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        #terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            background: #111;
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+        }
+
+        #terminal-header .term-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #bbb;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        #terminal-header .term-title .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            margin-right: 2px;
+        }
+        #terminal-header .term-title .dot.active {
+            background: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.25);
+        }
+
+        #terminal-close {
+            background: transparent;
+            border: none;
+            color: #555;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0 6px;
+            line-height: 1;
+            transition: color 0.2s;
+            font-weight: 300;
+        }
+
+        #terminal-close:hover {
+            color: #e0e0e0;
+        }
+
+        #terminal-body {
+            flex: 1;
+            padding: 14px 18px 10px 18px;
+            overflow-y: auto;
+            min-height: 200px;
+            max-height: 55vh;
+            background: #080808;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        #terminal-body .term-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            padding: 1px 0;
+            color: #c8c8c8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        #terminal-body .term-line .prompt {
+            color: #4caf50;
+            font-weight: 500;
+            margin-right: 6px;
+        }
+
+        #terminal-body .term-line .cmd-text {
+            color: #e8e8e8;
+        }
+
+        #terminal-body .term-line .response-text {
+            color: #b0b0b0;
+            padding-left: 16px;
+            display: block;
+            width: 100%;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        #terminal-body .term-line .response-text.error {
+            color: #e57373;
+        }
+        #terminal-body .term-line .response-text.success {
+            color: #81c784;
+        }
+
+        #terminal-input-row {
+            display: flex;
+            align-items: center;
+            padding: 6px 18px 14px 18px;
+            background: #080808;
+            border-top: 1px solid #141414;
+            flex-shrink: 0;
+            gap: 6px;
+        }
+
+        #terminal-input-row .prompt {
+            color: #4caf50;
+            font-weight: 500;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+        }
+
+        #terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #e8e8e8;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            padding: 4px 0;
+            caret-color: #4caf50;
+        }
+
+        #terminal-input::placeholder {
+            color: #333;
+        }
+
+        #terminal-body::-webkit-scrollbar {
+            width: 3px;
+        }
+        #terminal-body::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 2px;
+        }
+        #terminal-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ── hidden file input ──────────────────────────── */
+        #file-input {
+            display: none;
+        }
+
+        /* ── responsive ─────────────────────────────────── */
+        @media (max-width: 640px) {
+            #top-bar {
+                padding: 8px 12px;
+            }
+            #view-controls .view-btn {
+                padding: 4px 12px;
+                font-size: 11px;
+            }
+            #top-actions .action-btn {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
+            }
+            #domain-count-badge {
+                font-size: 10px;
+            }
+            #settings-popover {
+                width: 200px;
+                right: 12px;
+                top: 60px;
+                padding: 16px;
+            }
+            #hex-grid {
+                padding: 10px 12px;
+            }
+            .domain-label {
+                font-size: 10px;
+                max-width: 70px;
+            }
+            #terminal {
+                max-width: 100%;
+                border-radius: 10px;
+            }
+            #terminal-header {
+                padding: 8px 12px;
+            }
+            #terminal-body {
+                font-size: 12px;
+                padding: 10px 12px;
+                min-height: 140px;
+            }
+            #terminal-input-row {
+                padding: 4px 12px 10px 12px;
+            }
+            #terminal-input {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── VIEWPORT ─────────────────────────────────── -->
+    <div id="viewport">
+        <!-- top bar -->
+        <div id="top-bar">
+            <div id="view-controls">
+                <button class="view-btn active" data-mode="base">Base</button>
+                <button class="view-btn" data-mode="central">Central</button>
+            </div>
+            <div id="top-actions">
+                <span id="domain-count-badge">0</span>
+                <button class="action-btn" id="upload-btn" title="Upload domain list">+</button>
+                <button class="action-btn" id="settings-btn" title="Viewpoint settings">#</button>
+            </div>
+        </div>
+
+        <!-- grid -->
+        <div id="hex-grid">
+            <div class="empty-state">
+                <span class="big">⬡</span>
+                No domains loaded<br />
+                <span style="font-size:12px;color:#222;">upload a .txt file with URLs</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── SETTINGS POPOVER ──────────────────────────── -->
+    <div id="settings-popover">
+        <div class="setting-group">
+            <div class="setting-label">Zoom</div>
+            <div class="zoom-row">
+                <input type="range" id="zoom-slider" min="0.4" max="2.0" step="0.05" value="1.0" />
+                <span id="zoom-label">1.0×</span>
+            </div>
+        </div>
+        <div class="setting-group">
+            <div class="setting-label">Actions</div>
+            <button class="action-btn-sm" id="reset-btn">Clear all</button>
+        </div>
+    </div>
+
+    <!-- ─── TERMINAL MODAL ────────────────────────────── -->
+    <div id="terminal-overlay">
+        <div id="terminal">
+            <div id="terminal-header">
+                <div class="term-title">
+                    <span class="dot active"></span>
+                    <span id="term-domain-label">domain</span>
+                </div>
+                <button id="terminal-close">✕</button>
+            </div>
+            <div id="terminal-body"></div>
+            <div id="terminal-input-row">
+                <span class="prompt">$</span>
+                <input type="text" id="terminal-input" placeholder="type command…" autofocus spellcheck="false" />
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="file-input" accept=".txt,text/plain" />
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── state ──────────────────────────────────
+            let domains = [];
+            let viewMode = 'base';
+            let zoom = 1.0;
+            let activeDomain = null;
+
+            // ─── DOM refs ──────────────────────────────
+            const grid = document.getElementById('hex-grid');
+            const fileInput = document.getElementById('file-input');
+            const uploadBtn = document.getElementById('upload-btn');
+            const settingsBtn = document.getElementById('settings-btn');
+            const settingsPopover = document.getElementById('settings-popover');
+            const zoomSlider = document.getElementById('zoom-slider');
+            const zoomLabel = document.getElementById('zoom-label');
+            const domainBadge = document.getElementById('domain-count-badge');
+            const resetBtn = document.getElementById('reset-btn');
+
+            const viewBtns = document.querySelectorAll('.view-btn');
+            const termOverlay = document.getElementById('terminal-overlay');
+            const termBody = document.getElementById('terminal-body');
+            const termInput = document.getElementById('terminal-input');
+            const termClose = document.getElementById('terminal-close');
+            const termDomainLabel = document.getElementById('term-domain-label');
+
+            // ─── storage keys ──────────────────────────
+            const STORAGE_DOMAINS = 'infra_domains_v3';
+            const STORAGE_VIEW = 'infra_view_v3';
+            const STORAGE_ZOOM = 'infra_zoom_v3';
+
+            // ─── helpers ──────────────────────────────
+            function extractHostname(url) {
+                try {
+                    const u = new URL(url);
+                    return u.hostname;
+                } catch (_) {
+                    return url;
+                }
+            }
+
+            // ─── load / save state ─────────────────────
+            function loadState() {
+                try {
+                    const d = localStorage.getItem(STORAGE_DOMAINS);
+                    if (d) {
+                        const parsed = JSON.parse(d);
+                        if (Array.isArray(parsed)) domains = parsed.filter(item => item && item.baseUrl);
+                    }
+                    const v = localStorage.getItem(STORAGE_VIEW);
+                    if (v === 'base' || v === 'central') viewMode = v;
+                    const z = localStorage.getItem(STORAGE_ZOOM);
+                    if (z) zoom = parseFloat(z) || 1.0;
+                } catch (_) { /* ignore */ }
+                if (zoom < 0.4) zoom = 0.4;
+                if (zoom > 2.0) zoom = 2.0;
+            }
+
+            function saveState() {
+                try {
+                    localStorage.setItem(STORAGE_DOMAINS, JSON.stringify(domains));
+                    localStorage.setItem(STORAGE_VIEW, viewMode);
+                    localStorage.setItem(STORAGE_ZOOM, String(zoom));
+                } catch (_) { /* ignore */ }
+            }
+
+            // ─── render ─────────────────────────────────
+            function render() {
+                const totalDomains = domains.length;
+                domainBadge.textContent = totalDomains;
+
+                zoomSlider.value = zoom;
+                zoomLabel.textContent = zoom.toFixed(1) + '×';
+
+                viewBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === viewMode);
+                });
+
+                if (totalDomains === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <span class="big">⬡</span>
+                            No domains loaded<br />
+                            <span style="font-size:12px;color:#222;">upload a .txt file with URLs</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const container = document.createElement('div');
+
+                if (viewMode === 'base') {
+                    container.className = 'base-layout';
+                    const itemHeight = 84;
+                    const maxCol = Math.ceil(totalDomains / 8);
+                    container.style.height = (Math.min(totalDomains, 8) * itemHeight + 20) + 'px';
+                    container.style.width = (maxCol * 120) + 'px';
+
+                    domains.forEach(item => {
+                        const wrapper = createHexWrapper(item.baseUrl, item.display || extractHostname(item.baseUrl));
+                        container.appendChild(wrapper);
+                    });
+                } else {
+                    container.className = 'central-layout';
+                    const items = domains;
+                    const total = items.length;
+
+                    let circleConfig = [];
+                    let remaining = total;
+                    const maxPerCircle = [5, 15, 25, Infinity];
+                    let circleIdx = 0;
+                    while (remaining > 0 && circleIdx < maxPerCircle.length) {
+                        const maxHere = maxPerCircle[circleIdx];
+                        const count = Math.min(remaining, maxHere);
+                        circleConfig.push({ count, radius: 100 + circleIdx * 140 });
+                        remaining -= count;
+                        circleIdx++;
+                    }
+
+                    const maxRadius = circleConfig.length > 0 ? circleConfig[circleConfig.length - 1].radius : 100;
+                    const size = maxRadius * 2 + 120;
+                    container.style.width = size + 'px';
+                    container.style.height = size + 'px';
+                    container.style.position = 'relative';
+
+                    let idx = 0;
+                    for (const cfg of circleConfig) {
+                        const { count, radius } = cfg;
+                        for (let i = 0; i < count; i++) {
+                            const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
+                            const x = size/2 + radius * Math.cos(angle);
+                            const y = size/2 + radius * Math.sin(angle);
+                            const item = items[idx++];
+                            const wrapper = createHexWrapper(item.baseUrl, item.display || extractHostname(item.baseUrl));
+                            wrapper.style.position = 'absolute';
+                            wrapper.style.left = (x - 30) + 'px';
+                            wrapper.style.top = (y - 30) + 'px';
+                            const s = zoom * 1.0;
+                            wrapper.style.transform = `scale(${s})`;
+                            wrapper.style.transformOrigin = 'center center';
+                            container.appendChild(wrapper);
+                        }
+                    }
+                }
+
+                grid.innerHTML = '';
+                grid.appendChild(container);
+            }
+
+            // ─── create hex wrapper ──────────────────────
+            function createHexWrapper(baseUrl, displayName) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'hex-wrapper';
+
+                const size = 56 * zoom;
+                const viewBox = '0 0 100 100';
+
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('viewBox', viewBox);
+                svg.setAttribute('width', size);
+                svg.setAttribute('height', size * 0.88);
+                svg.setAttribute('class', 'hex-svg');
+                svg.style.width = size + 'px';
+                svg.style.height = (size * 0.88) + 'px';
+                svg.style.position = 'relative';
+
+                // Add shimmer line element
+                const shimmer = document.createElement('div');
+                shimmer.className = 'shimmer-line';
+                svg.appendChild(shimmer);
+
+                const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                poly.setAttribute('points', '50,0 93,25 93,75 50,100 7,75 7,25');
+                poly.setAttribute('fill', 'none');
+                poly.setAttribute('stroke', '#888');
+                poly.setAttribute('stroke-width', 1.8);
+                poly.setAttribute('stroke-linejoin', 'round');
+                svg.appendChild(poly);
+
+                wrapper.appendChild(svg);
+
+                const label = document.createElement('div');
+                label.className = 'domain-label';
+                label.textContent = displayName;
+                wrapper.appendChild(label);
+
+                wrapper.dataset.url = baseUrl;
+                wrapper.addEventListener('click', () => openTerminal(baseUrl));
+
+                return wrapper;
+            }
+
+            // ─── terminal ──────────────────────────────
+            function openTerminal(baseUrl) {
+                activeDomain = baseUrl;
+                const display = extractHostname(baseUrl);
+                termDomainLabel.textContent = display;
+                termBody.innerHTML = '';
+                termInput.value = '';
+                termInput.disabled = false;
+                termInput.focus();
+
+                appendTermLine(`Connected to ${display}`, '');
+                appendTermLine(`Base URL: ${baseUrl}`, '');
+                appendTermLine('─'.repeat(40), '');
+
+                termOverlay.classList.add('open');
+                termInput.focus();
+            }
+
+            function closeTerminal() {
+                termOverlay.classList.remove('open');
+                activeDomain = null;
+            }
+
+            function appendTermLine(content, cls = '') {
+                const line = document.createElement('div');
+                line.className = 'term-line';
+                if (cls) line.classList.add(cls);
+                line.textContent = content;
+                termBody.appendChild(line);
+                termBody.scrollTop = termBody.scrollHeight;
+            }
+
+            function appendResponse(content, isError = false) {
+                const line = document.createElement('div');
+                line.className = 'term-line';
+                const span = document.createElement('span');
+                span.className = 'response-text' + (isError ? ' error' : '');
+                span.textContent = content;
+                line.appendChild(span);
+                termBody.appendChild(line);
+                termBody.scrollTop = termBody.scrollHeight;
+            }
+
+            function appendCommand(cmd) {
+                const line = document.createElement('div');
+                line.className = 'term-line';
+                const prompt = document.createElement('span');
+                prompt.className = 'prompt';
+                prompt.textContent = '$';
+                const cmdSpan = document.createElement('span');
+                cmdSpan.className = 'cmd-text';
+                cmdSpan.textContent = cmd;
+                line.appendChild(prompt);
+                line.appendChild(cmdSpan);
+                termBody.appendChild(line);
+                termBody.scrollTop = termBody.scrollHeight;
+            }
+
+            async function executeCommand(cmd) {
+                if (!activeDomain) return;
+                if (!cmd || cmd.trim().length === 0) {
+                    appendCommand('');
+                    return;
+                }
+
+                const trimmed = cmd.trim();
+                appendCommand(trimmed);
+
+                const url = activeDomain + encodeURIComponent(trimmed);
+
+                try {
+                    const resp = await fetch(url, {
+                        method: 'GET',
+                        headers: { 'Accept': 'text/plain, text/html, */*' },
+                        signal: AbortSignal.timeout(10000)
+                    });
+
+                    let text = await resp.text();
+                    if (text.trim().startsWith('<')) {
+                        const div = document.createElement('div');
+                        div.innerHTML = text;
+                        text = div.textContent || text;
+                    }
+                    text = text.trim();
+                    if (text.length === 0) text = '(empty response)';
+
+                    appendResponse(text, false);
+                } catch (err) {
+                    appendResponse(`error: ${err.message || 'request failed'}`, true);
+                }
+            }
+
+            // ─── upload handling ───────────────────────
+            function handleFile(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const text = e.target.result;
+                    const lines = text.split(/\r?\n/).map(s => s.trim()).filter(s => s.length > 0);
+                    const parsed = [];
+                    for (const line of lines) {
+                        let url = line;
+                        parsed.push({ baseUrl: url, display: extractHostname(url) });
+                    }
+
+                    if (parsed.length === 0) return;
+
+                    const existingUrls = new Set(domains.map(d => d.baseUrl));
+                    for (const item of parsed) {
+                        if (!existingUrls.has(item.baseUrl)) {
+                            domains.push(item);
+                            existingUrls.add(item.baseUrl);
+                        }
+                    }
+
+                    saveState();
+                    render();
+                };
+                reader.readAsText(file);
+            }
+
+            // ─── event bindings ────────────────────────
+            function bindEvents() {
+                viewBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const mode = btn.dataset.mode;
+                        if (mode === viewMode) return;
+                        viewMode = mode;
+                        saveState();
+                        render();
+                    });
+                });
+
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    if (fileInput.files.length > 0) {
+                        handleFile(fileInput.files[0]);
+                        fileInput.value = '';
+                    }
+                });
+
+                settingsBtn.addEventListener('click', () => {
+                    settingsPopover.classList.toggle('open');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!settingsPopover.contains(e.target) && e.target !== settingsBtn) {
+                        settingsPopover.classList.remove('open');
+                    }
+                });
+
+                zoomSlider.addEventListener('input', () => {
+                    zoom = parseFloat(zoomSlider.value);
+                    zoomLabel.textContent = zoom.toFixed(1) + '×';
+                    saveState();
+                    render();
+                });
+
+                resetBtn.addEventListener('click', () => {
+                    if (domains.length === 0) return;
+                    if (confirm('Clear all domains?')) {
+                        domains = [];
+                        saveState();
+                        render();
+                    }
+                });
+
+                termClose.addEventListener('click', closeTerminal);
+                termOverlay.addEventListener('click', (e) => {
+                    if (e.target === termOverlay) closeTerminal();
+                });
+
+                termInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const cmd = termInput.value;
+                        termInput.value = '';
+                        if (cmd.trim().length > 0) {
+                            executeCommand(cmd);
+                        } else {
+                            appendCommand('');
+                        }
+                        setTimeout(() => termInput.focus(), 10);
+                    }
+                    if (e.key === 'Escape') {
+                        closeTerminal();
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && termOverlay.classList.contains('open')) {
+                        closeTerminal();
+                    }
+                });
+
+                let resizeTimer;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => render(), 150);
+                });
+            }
+
+            // ─── init ──────────────────────────────────
+            loadState();
+            render();
+            bindEvents();
+
+            window.__infra = { domains, viewMode, zoom, render, saveState };
+
+        })();
+    </script>
+
+</body>
+</html>
